@@ -7,7 +7,7 @@ import pandas as pd
 
 class Converter:
     @staticmethod
-    def DataFrame_to_Detections(df: pd.DataFrame) -> List[norfair.Detection]:
+    def DataFrame_to_Detections(arr: np.array) -> List[norfair.Detection]:
         """
         Converts a DataFrame to a list of norfair.Detection
 
@@ -24,12 +24,12 @@ class Converter:
 
         detections = []
 
-        for index, row in df.iterrows():
+        for row in arr.xyxy:
             # get the bounding box coordinates
-            xmin = round(row["xmin"])
-            ymin = round(row["ymin"])
-            xmax = round(row["xmax"])
-            ymax = round(row["ymax"])
+            xmin = row[0]
+            ymin = row[1]
+            xmax = row[2]
+            ymax = row[3]
 
             box = np.array(
                 [
@@ -39,22 +39,22 @@ class Converter:
             )
 
             # get the predicted class
-            name = row["name"]
-            confidence = row["confidence"]
+            class_id = arr.class_id
+            confidence = arr.confidence
 
             data = {
-                "name": name,
+                "name": class_id,
                 "p": confidence,
             }
 
-            if "color" in row:
-                data["color"] = row["color"]
-
-            if "label" in row:
-                data["label"] = row["label"]
-
-            if "classification" in row:
-                data["classification"] = row["classification"]
+            # if "color" in row:
+            #     data["color"] = row["color"]
+            #
+            # if "label" in row:
+            #     data["label"] = row["label"]
+            #
+            # if "classification" in row:
+            #     data["classification"] = row["classification"]
 
             detection = norfair.Detection(
                 points=box,
@@ -82,7 +82,6 @@ class Converter:
         """
 
         df = pd.DataFrame()
-
         for detection in detections:
 
             xmin = detection.points[0][0]

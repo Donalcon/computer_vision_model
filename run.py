@@ -1,12 +1,13 @@
 import argparse
-
+import supervision as sv
 import cv2
 import numpy as np
 import PIL
 from norfair import Tracker, Video
 from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
-
+from inference.object_detector import ObjectDetection
+from inference.ball_detector import BallDetection
 from inference import Converter, HSVClassifier, InertiaClassifier, YoloV5
 from inference.filters import filters
 from run_utils import (
@@ -45,8 +46,9 @@ video = Video(input_path=args.video)
 fps = video.video_capture.get(cv2.CAP_PROP_FPS)
 
 # Object Detectors
-player_detector = YoloV5()
-ball_detector = YoloV5(model_path=args.model)
+player_detector = BallDetection()
+ball_detector = BallDetection()
+detector = ObjectDetection()
 
 # HSV Classifier
 hsv_classifier = HSVClassifier(filters=filters)
@@ -55,17 +57,17 @@ hsv_classifier = HSVClassifier(filters=filters)
 classifier = InertiaClassifier(classifier=hsv_classifier, inertia=20)
 
 # Teams and Match
-chelsea = Team(
-    name="Chelsea",
-    abbreviation="CHE",
-    color=(255, 0, 0),
-    board_color=(244, 86, 64),
-    text_color=(255, 255, 255),
+kerry = Team(
+    name="Kerry",
+    abbreviation="KER",
+    color=(74, 103, 65),
+    board_color=(74, 103, 65),
+    text_color=(255, 215, 0),
 )
-man_city = Team(name="Man City", abbreviation="MNC", color=(240, 230, 188))
-teams = [chelsea, man_city]
-match = Match(home=chelsea, away=man_city, fps=fps)
-match.team_possession = man_city
+dublin = Team(name="Dublin", abbreviation="DUB", color=(240, 230, 18))
+teams = [dublin, kerry]
+match = Match(home=dublin, away=kerry, fps=fps)
+match.team_possession = dublin
 
 # Tracking
 player_tracker = Tracker(
@@ -78,7 +80,7 @@ player_tracker = Tracker(
 ball_tracker = Tracker(
     distance_function=mean_euclidean,
     distance_threshold=150,
-    initialization_delay=20,
+    initialization_delay=3,
     hit_counter_max=2000,
 )
 motion_estimator = MotionEstimator()
@@ -96,7 +98,7 @@ for i, frame in enumerate(video):
     # Get Detections
     players_detections = get_player_detections(player_detector, frame)
     ball_detections = get_ball_detections(ball_detector, frame)
-    detections = ball_detections + players_detections
+    detections = players_detections + ball_detections
 
     # Update trackers
     coord_transformations = update_motion_estimator(
@@ -125,7 +127,7 @@ for i, frame in enumerate(video):
     ball = get_main_ball(ball_detections)
     players = Player.from_detections(detections=players_detections, teams=teams)
     match.update(players, ball)
-
+    # Add in pickle file.
     # Draw
     frame = PIL.Image.fromarray(frame)
 
@@ -160,6 +162,7 @@ for i, frame in enumerate(video):
         )
 
     frame = np.array(frame)
+    print(frame.shape)
 
     # Write video
     video.write(frame)

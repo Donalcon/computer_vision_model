@@ -38,14 +38,14 @@ class Player:
     def get_right_foot(self, points: np.array):
         return points[1]
 
-    def get_center(self, points: np.array):
+    def get_center(self, point: np.array):
         points = self.detection.points
         x1, y1 = points[0]
         x2, y2 = points[1]
         center_x = (x1 + x2) / 2
         center_y = (y1 + y2) / 2
-        center = np.array([center_x, center_y])
-        return center
+        return [center_x, center_y]
+
 
     @property
     def left_foot(self):
@@ -62,12 +62,6 @@ class Player:
         return right_foot
 
     @property
-    def center(self):
-        points = self.detection.points
-        center = self.get_center(points)
-        return center
-
-    @property
     def left_foot_abs(self):
         points = self.detection.absolute_points
         left_foot_abs = self.get_left_foot(points)
@@ -82,19 +76,54 @@ class Player:
         return right_foot_abs
 
     @property
-    def center_abs(self):
-        points = self.detection.absolute_points
-        center_abs = self.get_center(points)
-        return center_abs
-
-    @property
     def feet(self) -> np.ndarray:
         return np.array([self.left_foot, self.right_foot])
 
+    @property
+    def center(self):
+        points = self.detection.points
+        x1, y1 = points[0]
+        x2, y2 = points[1]
+        center_x = (x1 + x2) / 2
+        center_y = (y1 + y2) / 2
+        return [center_x, center_y]
+
+    @property
+    def center_abs(self):
+        points = self.detection.absolute_points
+        x1, y1 = points[0]
+        x2, y2 = points[1]
+        center_x = (x1 + x2) / 2
+        center_y = (y1 + y2) / 2
+        return [center_x, center_y]
+
+
+    # def distance_to_ball(self, ball: Ball) -> float:
+    #     """
+    #     Returns the distance between the player closest foot and the ball
+    #
+    #     Parameters
+    #     ----------
+    #     ball : Ball
+    #         Ball object
+    #
+    #     Returns
+    #     -------
+    #     float
+    #         Distance between the player closest foot and the ball
+    #     """
+    #
+    #     #if self.detection is None or ball.center is None:
+    #     #    return None
+    #
+    #     left_foot_distance = np.linalg.norm(ball.center - self.left_foot)
+    #     right_foot_distance = np.linalg.norm(ball.center - self.right_foot)
+    #
+    #     return min(left_foot_distance, right_foot_distance)
 
     def distance_to_ball(self, ball: Ball) -> float:
         """
-        Returns the distance between the player closest foot and the ball
+        Returns the distance between the player's center and the ball
 
         Parameters
         ----------
@@ -104,7 +133,7 @@ class Player:
         Returns
         -------
         float
-            Distance between the player closest foot and the ball
+            Distance between the player's center and the ball
         """
 
         if self.detection is None or ball.center is None:
@@ -112,8 +141,53 @@ class Player:
 
         center_distance = np.linalg.norm(ball.center - self.center)
 
-
         return center_distance
+
+    def closest_center_to_ball(self, ball):
+        """
+        Returns the closest center point to the ball
+
+        Parameters
+        ----------
+        ball : Ball
+            Ball object
+
+        Returns
+        -------
+        np.ndarray
+            Closest center point to the ball [x, y]
+        """
+
+        if self.detection is None or ball.center is None:
+            return None
+
+        center_distance = np.linalg.norm(ball.center - self.center)
+
+        return self.center if center_distance < self.distance_to_ball(ball) else None
+
+    def closest_center_to_ball_abs(self, ball: Ball) -> np.ndarray:
+        """
+
+        Returns the closest foot to the ball
+
+        Parameters
+        ----------
+        ball : Ball
+            Ball object
+
+        Returns
+        -------
+        np.ndarray
+            Closest foot to the ball (x, y)
+        """
+
+        if self.detection is None or ball.center_abs is None:
+            return None
+
+        center_distance = np.linalg.norm(ball.center_abs - self.center_abs)
+
+        return self.center if center_distance <= self.distance_to_ball(ball) else None
+
 
     def closest_foot_to_ball(self, ball: Ball) -> np.ndarray:
         """
@@ -141,29 +215,6 @@ class Player:
             return self.left_foot
 
         return self.right_foot
-
-    def closest_center_to_ball_abs(self, ball: Ball) -> np.ndarray:
-        """
-
-        Returns the closest center to the ball
-
-        Parameters
-        ----------
-        ball : Ball
-            Ball object
-
-        Returns
-        -------
-        np.ndarray
-            Closest foot to the ball (x, y)
-        """
-
-        if self.detection is None or ball.center_abs is None:
-            return None
-
-        center_distance = np.linalg.norm(ball.center_abs - self.center_abs)
-
-        return self.center if center_distance <= self.distance_to_ball(ball) else None
 
     def closest_foot_to_ball_abs(self, ball: Ball) -> np.ndarray:
         """

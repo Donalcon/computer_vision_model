@@ -1,9 +1,9 @@
 from typing import List
-
+from ultralytics import YOLO
 import numpy as np
 import pandas as pd
 import torch
-
+import supervision as sv
 from inference.base_detector import BaseDetector
 
 
@@ -26,9 +26,7 @@ class YoloV5(BaseDetector):
         if model_path:
             self.model = torch.hub.load("ultralytics/yolov5", "custom", path=model_path)
         else:
-            self.model = torch.hub.load(
-                "ultralytics/yolov5", "yolov5x", pretrained=True
-            )
+            self.model = YOLO("yolov8l.pt")
 
     def predict(self, input_image: List[np.ndarray]) -> pd.DataFrame:
         """
@@ -45,6 +43,7 @@ class YoloV5(BaseDetector):
             DataFrame containing the bounding boxes
         """
 
-        result = self.model(input_image, size=640)
+        result = self.model(input_image)
+        detections = sv.Detections.from_yolov8(result)
 
-        return result.pandas().xyxy[0]
+        return detections

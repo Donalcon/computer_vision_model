@@ -308,7 +308,7 @@ class PassEvent:
             if valid_pass:
                 # Generate new pass
                 team = self.closest_player.team
-                start_pass = self.last_player_with_ball.closest_foot_to_ball_abs(
+                start_pass = self.last_player_with_ball.closest_center_to_ball_abs(
                     self.ball
                 )
                 end_pass = self.ball.detection.absolute_points

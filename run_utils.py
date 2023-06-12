@@ -2,10 +2,12 @@ from typing import List
 
 import norfair
 import numpy as np
+import pandas as pd
 from norfair import Detection
 from norfair.camera_motion import MotionEstimator
 
 from inference import Converter, YoloV5
+from inference.object_detector import ObjectDetection
 from soccer import Ball, Match
 
 
@@ -29,9 +31,11 @@ def get_ball_detections(
     List[norfair.Detection]
         List of ball detections
     """
-    ball_df = ball_detector.predict(frame)
-    ball_df = ball_df[ball_df["confidence"] > 0.3]
-    return Converter.DataFrame_to_Detections(ball_df)
+    ball = ball_detector.predict(frame)
+    ball = ball_detector.return_Detections(ball)
+    ball = ball[ball.class_id == 0]
+    ball = ball[ball.confidence > 0.05]
+    return Converter.DataFrame_to_Detections(ball)
 
 
 def get_player_detections(
@@ -55,10 +59,11 @@ def get_player_detections(
         List of player detections
     """
 
-    person_df = person_detector.predict(frame)
-    person_df = person_df[person_df["name"] == "person"]
-    person_df = person_df[person_df["confidence"] > 0.35]
-    person_detections = Converter.DataFrame_to_Detections(person_df)
+    persons = person_detector.predict(frame)
+    persons = person_detector.return_Detections(persons)
+    persons = persons[persons.class_id == 2]
+    persons = persons[persons.confidence > 0.35]
+    person_detections = Converter.DataFrame_to_Detections(persons)
     return person_detections
 
 
@@ -83,8 +88,8 @@ def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.nd
     if not detections:
         mask = np.ones(frame.shape[:2], dtype=frame.dtype)
     else:
-        detections_df = Converter.Detections_to_DataFrame(detections)
-        mask = YoloV5.generate_predictions_mask(detections_df, frame, margin=40)
+        #detections_df = Converter.Detections_to_DataFrame(detections)
+        mask = ObjectDetection.generate_predictions_mask(detections, frame, margin=40)
 
     # remove goal counter
     mask[69:200, 160:510] = 0
@@ -137,8 +142,8 @@ def update_motion_estimator(
         Coordinate transformation for the current frame
     """
 
-    mask = create_mask(frame=frame, detections=detections)
-    coord_transformations = motion_estimator.update(frame, mask=mask)
+    #mask = create_mask(frame=frame, detections=detections)
+    coord_transformations = motion_estimator.update(frame) # should have mask=mask in args
     return coord_transformations
 
 

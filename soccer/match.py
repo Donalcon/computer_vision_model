@@ -35,9 +35,9 @@ class Match:
         self.closest_player = None
         self.ball = None
         # Amount of consecutive frames new team has to have the ball in order to change possession
-        self.possesion_counter_threshold = 20
+        self.possesion_counter_threshold = 3
         # Distance in pixels from player to ball in order to consider a player has the ball
-        self.ball_distance_threshold = 45
+        self.ball_distance_threshold = 25
         self.fps = fps
         # Pass detection
         self.pass_event = PassEvent()
@@ -62,6 +62,10 @@ class Match:
             return
 
         self.ball = ball
+
+        if not players:
+            self.closest_player = None
+            return
 
         closest_player = min(players, key=lambda player: player.distance_to_ball(ball))
 
@@ -398,7 +402,7 @@ class Match:
             Counter background
         """
 
-        counter = PIL.Image.open("./images/possession_board.png").convert("RGBA")
+        counter = PIL.Image.open("./images/possession_board2.png").convert("RGBA")
         counter = Draw.add_alpha(counter, 210)
         counter = np.array(counter)
         red, green, blue, alpha = counter.T
@@ -418,7 +422,7 @@ class Match:
             Counter background
         """
 
-        counter = PIL.Image.open("./images/passes_board.png").convert("RGBA")
+        counter = PIL.Image.open("./images/passes_board2.png").convert("RGBA")
         counter = Draw.add_alpha(counter, 210)
         counter = np.array(counter)
         red, green, blue, alpha = counter.T
@@ -559,7 +563,7 @@ class Match:
             Drawed video frame
         """
         if self.closest_player and self.ball:
-            closest_foot = self.closest_player.closest_foot_to_ball(self.ball)
+            closest_foot = self.closest_player.distance_to_ball(self.ball)
 
             color = (0, 0, 0)
             # Change line color if its greater than threshold
