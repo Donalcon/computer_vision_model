@@ -2,7 +2,7 @@ from inference.colors import black, blue, green, sky_blue, yellow, navy, white
 
 dublin_filter = {
     "name": "Dublin",
-    "colors": [sky_blue, navy],
+    "colors": [sky_blue],
 }
 
 kerry_filter = {
@@ -16,6 +16,6 @@ kerry_filter = {
 # }
 
 filters = [
-    kerry_filter,
     dublin_filter,
+    kerry_filter,
 ]
