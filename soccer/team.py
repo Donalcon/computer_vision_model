@@ -29,6 +29,7 @@ class Team:
         """
         self.name = name
         self.possession = 0
+        self.turnovers = 0
         self.passes = []
         self.color = color
         self.abbreviation = abbreviation
@@ -90,6 +91,23 @@ class Team:
             minutes = "0" + minutes
 
         return f"{minutes}:{seconds}"
+
+    def increment_turnovers(self):
+        """
+        Increment the number of turnovers for the team
+        """
+        self.turnovers += 1
+
+    def get_turnovers(self) -> int:
+        """
+        Get the number of turnovers for the team
+
+        Returns
+        -------
+        int
+            Number of turnovers
+        """
+        return self.turnovers
 
     def __str__(self):
         return self.name

@@ -32,6 +32,7 @@ class Match:
         self.team_possession = self.home
         self.current_team = self.home
         self.possession_counter = 0
+        self.turnover_counter = 0
         self.closest_player = None
         self.ball = None
         # Amount of consecutive frames new team has to have the ball in order to change possession
@@ -81,6 +82,7 @@ class Match:
         if closest_player.team != self.current_team:
             self.possession_counter = 0
             self.current_team = closest_player.team
+            self.current_team.increment_turnovers()
 
         self.possession_counter += 1
 
@@ -608,7 +610,7 @@ class Match:
 
         # get width of PIL.Image
         frame_width = frame.size[0]
-        counter_origin = (frame_width - 540, 40)
+        counter_origin = (frame_width - 540, 0)
 
         frame = self.draw_counter_background(
             frame,
@@ -618,7 +620,7 @@ class Match:
 
         frame = self.draw_counter(
             frame,
-            origin=(counter_origin[0] + 35, counter_origin[1] + 130),
+            origin=(counter_origin[0] + 35, counter_origin[1] + 90),
             text=self.home.abbreviation,
             counter_text=self.home.get_time_possession(self.fps),
             color=self.home.board_color,
@@ -628,7 +630,7 @@ class Match:
         )
         frame = self.draw_counter(
             frame,
-            origin=(counter_origin[0] + 35 + 150 + 10, counter_origin[1] + 130),
+            origin=(counter_origin[0] + 35 + 150 + 10, counter_origin[1] + 90),
             text=self.away.abbreviation,
             counter_text=self.away.get_time_possession(self.fps),
             color=self.away.board_color,
@@ -636,8 +638,29 @@ class Match:
             height=31,
             width=150,
         )
+        frame = self.draw_counter(
+            frame,
+            origin=(counter_origin[0] + 35, counter_origin[1] + 120),
+            text=self.home.abbreviation,
+            counter_text=str(self.home.get_turnovers()),
+            color=self.home.board_color,
+            text_color=self.home.text_color,
+            height=31,
+            width=150,
+        )
+        frame = self.draw_counter(
+            frame,
+            origin=(counter_origin[0] + 35 + 150 + 10, counter_origin[1] + 120),
+            text=self.away.abbreviation,
+            counter_text=str(self.away.get_turnovers()),
+            color=self.away.board_color,
+            text_color=self.away.text_color,
+            height=31,
+            width=150,
+        )
+
         frame = self.possession_bar(
-            frame, origin=(counter_origin[0] + 35, counter_origin[1] + 195)
+            frame, origin=(counter_origin[0] + 35, counter_origin[1] + 180)
         )
 
         if self.closest_player:
@@ -685,7 +708,7 @@ class Match:
 
         frame = self.draw_counter(
             frame,
-            origin=(counter_origin[0] + 35, counter_origin[1] + 130),
+            origin=(counter_origin[0] - 35, counter_origin[1] + 130),
             text=self.home.abbreviation,
             counter_text=str(len(self.home.passes)),
             color=self.home.board_color,

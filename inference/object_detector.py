@@ -73,9 +73,9 @@ class ObjectDetection:
         TypeError
             If predictions type is not pd.DataFrame
         """
-        print(type(predictions))
-        if type(predictions) != np.array:
-            raise TypeError("predictions must be a pandas dataframe")
+        #print(type(predictions))
+        #if type(predictions) != np.array:
+        #    raise TypeError("predictions must be a pandas dataframe")
 
         mask = np.ones(img.shape[:2], dtype=img.dtype)
 

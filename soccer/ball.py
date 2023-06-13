@@ -15,8 +15,21 @@ class Ball:
         detection : norfair.Detection
             norfair.Detection containing the ball
         """
-        self.detection = detection
+        self.detection = None
+        self.update_detection(detection)
         self.color = None
+
+    def update_detection(self, detection: norfair.Detection):
+        """
+        Update the ball detection
+
+        Parameters
+        ----------
+        detection : norfair.Detection
+            norfair.Detection containing the ball
+        """
+        if detection is not None:
+            self.last_known_detection = detection
 
     def set_color(self, match: "Match"):
         """

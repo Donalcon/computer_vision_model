@@ -273,9 +273,9 @@ class HSVClassifier(BaseClassifier):
         height, width, _ = img.shape
 
         y_start = int(height * 0.15)
-        y_end = int(height * 0.50)
-        x_start = int(width * 0.15)
-        x_end = int(width * 0.85)
+        y_end = int(height * 0.6)
+        x_start = int(width * 0.2)
+        x_end = int(width * 0.8)
 
         return img[y_start:y_end, x_start:x_end]
 

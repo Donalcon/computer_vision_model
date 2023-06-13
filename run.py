@@ -62,7 +62,7 @@ kerry = Team(
     abbreviation="KER",
     color=(74, 103, 65),
     board_color=(74, 103, 65),
-    text_color=(255, 215, 0),
+    text_color=(248, 190, 92),
 )
 dublin = Team(name="Dublin", abbreviation="DUB", color=(240, 230, 18))
 teams = [dublin, kerry]
@@ -166,3 +166,14 @@ for i, frame in enumerate(video):
 
     # Write video
     video.write(frame)
+
+# Generate summary stats
+home_turnovers = match.home.get_turnovers()
+away_turnovers = match.away.get_turnovers()
+home_time_in_possession = match.home.get_time_possession(match.fps)
+away_time_in_possession = match.away.get_time_possession(match.fps)
+
+print(f"{match.home.name} turnovers:", home_turnovers)
+print(f"{match.away.name} turnovers:", away_turnovers)
+print(f"{match.home.name} time in possession: {home_time_in_possession}")
+print(f"{match.away.name} time in possession: {away_time_in_possession}")

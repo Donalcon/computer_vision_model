@@ -1,13 +1,13 @@
-from inference.colors import black, blue, green, sky_blue, yellow
+from inference.colors import black, blue, green, sky_blue, yellow, navy, white
 
 dublin_filter = {
     "name": "Dublin",
-    "colors": [sky_blue],
+    "colors": [sky_blue, navy],
 }
 
 kerry_filter = {
     "name": "Kerry",
-    "colors": [green, yellow],
+    "colors": [green, white],
 }
 
 # referee_filter = {

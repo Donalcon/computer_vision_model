@@ -88,8 +88,8 @@ def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.nd
     if not detections:
         mask = np.ones(frame.shape[:2], dtype=frame.dtype)
     else:
-        #detections_df = Converter.Detections_to_DataFrame(detections)
-        mask = ObjectDetection.generate_predictions_mask(detections, frame, margin=40)
+        detections_df = Converter.Detections_to_DataFrame(detections)
+        mask = ObjectDetection.generate_predictions_mask(detections_df, frame, margin=40)
 
     # remove goal counter
     mask[69:200, 160:510] = 0
@@ -142,8 +142,8 @@ def update_motion_estimator(
         Coordinate transformation for the current frame
     """
 
-    #mask = create_mask(frame=frame, detections=detections)
-    coord_transformations = motion_estimator.update(frame) # should have mask=mask in args
+    mask = create_mask(frame=frame, detections=detections)
+    coord_transformations = motion_estimator.update(frame, mask=mask) # should have mask=mask in args
     return coord_transformations
 
 
@@ -173,5 +173,9 @@ def get_main_ball(detections: List[Detection], match: Match = None) -> Ball:
 
     if detections:
         ball.detection = detections[0]
+    else:
+        # Set the ball's detection to the last known detection
+        if match and match.ball and match.ball.detection:
+            ball.detection = match.ball.detection[-1]
 
     return ball
