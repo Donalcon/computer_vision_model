@@ -58,11 +58,18 @@ class Match:
 
         self.update_possession()
 
+        self.ball = ball
+
         if ball is None or ball.detection is None:
-            self.closest_player = None
+            # Check if there is a previous ball detection
+            if self.ball is not None and self.ball.detection is not None:
+                last_ball_detection = self.ball.detection
+                closest_player = min(players, key=lambda player: player.distance_to_last_ball(last_ball_detection))
+                self.closest_player = closest_player
+            else:
+                self.closest_player = None
             return
 
-        self.ball = ball
 
         if not players:
             self.closest_player = None

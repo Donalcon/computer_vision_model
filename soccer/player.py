@@ -94,7 +94,7 @@ class Player:
 
     def distance_to_ball(self, ball: Ball) -> float:
         """
-        Returns the distance between the player closest foot and the ball
+        Returns the distance between the players center and the ball
 
         Parameters
         ----------
@@ -114,6 +114,35 @@ class Player:
 
 
         return center_distance
+
+    def distance_to_last_ball(self, ball: Ball) -> float:
+        """
+        Returns the distance between the player closest foot and the most recent ball detection
+
+        Parameters
+        ----------
+        ball : Ball
+            Ball object
+
+        Returns
+        -------
+        float
+            Distance between the player closest foot and the most recent ball detection
+        """
+
+        if self.detection is None:
+            return None
+
+        if ball.center is None:
+            if ball.last_detection is not None and ball.last_detection.center is not None:
+                center_distance = np.linalg.norm(ball.last_detection.center - self.center)
+                return center_distance
+            else:
+                return None
+
+        center_distance = np.linalg.norm(ball.detection.center - self.center)
+        return center_distance
+
 
     def closest_foot_to_ball(self, ball: Ball) -> np.ndarray:
         """

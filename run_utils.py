@@ -173,9 +173,5 @@ def get_main_ball(detections: List[Detection], match: Match = None) -> Ball:
 
     if detections:
         ball.detection = detections[0]
-    else:
-        # Set the ball's detection to the last known detection
-        if match and match.ball and match.ball.detection:
-            ball.detection = match.ball.detection[-1]
 
     return ball

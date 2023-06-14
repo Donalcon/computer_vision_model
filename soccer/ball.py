@@ -16,20 +16,23 @@ class Ball:
             norfair.Detection containing the ball
         """
         self.detection = None
-        self.update_detection(detection)
+        self.last_detection = None
         self.color = None
 
-    def update_detection(self, detection: norfair.Detection):
+        # Assign the initial detection
+        self.update_detection(detection)
+
+    def update_detection(self, new_detection: norfair.Detection):
         """
-        Update the ball detection
+        Update the ball detection and store the previous detection.
 
         Parameters
         ----------
-        detection : norfair.Detection
-            norfair.Detection containing the ball
+        new_detection : norfair.Detection
+            New detection of the ball
         """
-        if detection is not None:
-            self.last_known_detection = detection
+        self.last_detection = self.detection
+        self.detection = new_detection
 
     def set_color(self, match: "Match"):
         """
@@ -81,7 +84,13 @@ class Ball:
             Center of the ball (x, y)
         """
         if self.detection is None:
-            return None
+            if self.last_detection is None:
+                return None
+
+            center = self.get_center(self.last_detection.points)
+            round_center = np.round_(center)
+
+            return round_center
 
         center = self.get_center(self.detection.points)
         round_center = np.round_(center)
