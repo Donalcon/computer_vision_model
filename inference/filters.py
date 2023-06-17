@@ -7,15 +7,16 @@ dublin_filter = {
 
 kerry_filter = {
     "name": "Kerry",
-    "colors": [green, white],
+    "colors": [green],
 }
 
-# referee_filter = {
-#     "name": "Referee",
-#     "colors": [black],
-# }
+referee_filter = {
+     "name": "Referee",
+     "colors": [black],
+}
 
 filters = [
     dublin_filter,
     kerry_filter,
+    referee_filter
 ]

@@ -52,6 +52,7 @@ class HSVClassifier(BaseClassifier):
         super().__init__()
 
         self.filters = [self.check_filter_format(filter) for filter in filters]
+        self.jerseys = []
 
     def check_tuple_format(self, a_tuple: tuple, name: str) -> tuple:
         """
@@ -277,6 +278,9 @@ class HSVClassifier(BaseClassifier):
         x_start = int(width * 0.2)
         x_end = int(width * 0.8)
 
+        jersey = img[y_start:y_end, x_start:x_end]
+        self.jerseys.append(jersey)
+
         return img[y_start:y_end, x_start:x_end]
 
     def add_median_blur(self, img: np.ndarray) -> np.ndarray:
@@ -481,3 +485,15 @@ class HSVClassifier(BaseClassifier):
 
         if save_img_path is not None:
             fig.savefig(save_img_path)
+
+
+    def get_jerseys(self) -> list:
+        """
+        Getter function for cropped_images.
+
+        Returns
+        -------
+        list
+            List of cropped images.
+        """
+        return self.jerseys
