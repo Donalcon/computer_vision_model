@@ -48,7 +48,7 @@ fps = video.video_capture.get(cv2.CAP_PROP_FPS)
 # Object Detectors
 player_detector = BallDetection()
 ball_detector = BallDetection()
-detector = ObjectDetection()
+
 
 # HSV Classifier
 hsv_classifier = HSVClassifier(filters=filters)

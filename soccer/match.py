@@ -88,8 +88,8 @@ class Match:
         # Reset counter if team changed
         if closest_player.team != self.current_team:
             self.possession_counter = 0
-            self.current_team = closest_player.team
-            self.current_team.increment_turnovers()
+            if closest_player is not None:
+                self.current_team = closest_player.team
 
         self.possession_counter += 1
 
@@ -98,6 +98,7 @@ class Match:
             and closest_player.team is not None
         ):
             self.change_team(self.current_team)
+            self.current_team.increment_turnovers()
 
         # Pass detection
         self.pass_event.update(closest_player=closest_player, ball=ball)
