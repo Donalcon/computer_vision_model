@@ -65,6 +65,29 @@ class NNClassifier(BaseClassifier):
 
         self.classes = classes
 
+    def crop_image(self, image: np.ndarray):
+        """
+        Crop image to get only the jersey part
+
+        Parameters
+        ----------
+        img : np.ndarray
+            Image to crop
+
+        Returns
+        -------
+        np.ndarray
+            Cropped image
+        """
+        height, width, _ = image.shape
+
+        y_start = int(height * 0.2)
+        y_end = int(height * 0.4)
+        x_start = int(width * 0.2)
+        x_end = int(width * 0.8)
+
+        return image[y_start:y_end, x_start:x_end]
+
     def convert_image_to_desired_tensor(self, image: np.ndarray) -> torch.Tensor:
         """
         Convert image to desired tensor format for classification
@@ -79,6 +102,7 @@ class NNClassifier(BaseClassifier):
         torch.Tensor
             Image as tensor
         """
+        image = self.crop_image(image)
 
         pil_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
@@ -157,5 +181,5 @@ class NNClassifier(BaseClassifier):
             self.model.eval()
 
             result = [self.forward_image(tensor) for tensor in tensors]
-
             return result
+

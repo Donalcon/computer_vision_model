@@ -61,13 +61,13 @@ classifier = InertiaClassifier(classifier=nn_classifier, inertia=20)
 
 # Teams and Match
 kerry = Team(
-    name="Kerry",
+    name="kerry",
     abbreviation="KER",
     color=(74, 103, 65),
     board_color=(74, 103, 65),
     text_color=(248, 190, 92),
 )
-dublin = Team(name="Dublin", abbreviation="DUB", color=(240, 230, 18))
+dublin = Team(name="dublin", abbreviation="DUB", color=(240, 230, 18))
 teams = [dublin, kerry]
 match = Match(home=dublin, away=kerry, fps=fps)
 match.team_possession = dublin
@@ -121,12 +121,11 @@ for i, frame in enumerate(video):
     player_detections = Converter.TrackedObjects_to_Detections(player_track_objects)
     ball_detections = Converter.TrackedObjects_to_Detections(ball_track_objects)
 
-
     player_detections = classifier.predict_from_detections(
         detections=player_detections,
         img=frame,
     )
-
+    print([attr for attr in dir(player_detections) if not attr.startswith('_')])
     # Match update
     ball = get_main_ball(ball_detections)
     players = Player.from_detections(detections=players_detections, teams=teams)
