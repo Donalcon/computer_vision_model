@@ -61,6 +61,7 @@ class NNClassifier(BaseClassifier):
         print(self.device)
         self.model = Net().to(self.device)  # On GPU
         self.model.load_state_dict(torch.load(model_path))
+        print(self.model.load_state_dict(torch.load(model_path)))
 
         self.classes = classes
 
@@ -101,7 +102,7 @@ class NNClassifier(BaseClassifier):
     def forward_image(self, image: torch.Tensor) -> Union[int, str]:
         """
 
-        Predicts class of image and returns index or classname whether classes are defined
+        Predicts class of image and returns index or class name whether classes are defined
 
         Parameters
         ----------

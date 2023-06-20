@@ -121,7 +121,7 @@ for i, frame in enumerate(video):
     player_detections = Converter.TrackedObjects_to_Detections(player_track_objects)
     ball_detections = Converter.TrackedObjects_to_Detections(ball_track_objects)
 
-    jerseys = hsv_classifier.get_jerseys()
+
     player_detections = classifier.predict_from_detections(
         detections=player_detections,
         img=frame,
@@ -183,7 +183,3 @@ print(f"{match.away.name} turnovers:", away_turnovers)
 print(f"{match.home.name} time in possession: {home_time_in_possession}")
 print(f"{match.away.name} time in possession: {away_time_in_possession}")
 
-# Save Jerseys imgs
-for i, jersey in enumerate(jerseys):
-    img = Image.fromarray(jersey)
-    jersey.save(f'./data/jerseys/jersey_{i}.jpeg')
