@@ -52,7 +52,6 @@ class HSVClassifier(BaseClassifier):
         super().__init__()
 
         self.filters = [self.check_filter_format(filter) for filter in filters]
-        self.jerseys = []
 
     def check_tuple_format(self, a_tuple: tuple, name: str) -> tuple:
         """
@@ -329,10 +328,6 @@ class HSVClassifier(BaseClassifier):
         np.ndarray
             Cropped image
         """
-        # For Nnet training
-        jersey = img.copy()
-        jersey = self.crop_img_for_jersey(jersey)
-        self.jerseys.append(jersey)
 
         # For actual
         transformed_img = img.copy()
@@ -490,13 +485,4 @@ class HSVClassifier(BaseClassifier):
             fig.savefig(save_img_path)
 
 
-    def get_jerseys(self) -> list:
-        """
-        Getter function for cropped_images.
 
-        Returns
-        -------
-        list
-            List of cropped images.
-        """
-        return self.jerseys
