@@ -26,7 +26,7 @@ class Net(nn.Module):
         self.batchnorm3 = nn.BatchNorm2d(64)
         self.fc1 = nn.Linear(64 * 5 * 5, 512)
         self.fc2 = nn.Linear(512, 256)
-        self.fc3 = nn.Linear(256, 4)
+        self.fc3 = nn.Linear(256, 2)
 
     def forward(self, x):
         x = self.batchnorm1(F.relu(self.conv1(x)))
