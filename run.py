@@ -3,10 +3,11 @@ import supervision as sv
 import cv2
 import numpy as np
 import PIL
+from PIL import Image
 from norfair import Tracker, Video
 from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
-from inference.object_detector import ObjectDetection
+from inference.nn_classifier import NNClassifier
 from inference.ball_detector import BallDetection
 from inference import Converter, HSVClassifier, InertiaClassifier, YoloV5
 from inference.filters import filters
@@ -49,12 +50,14 @@ fps = video.video_capture.get(cv2.CAP_PROP_FPS)
 player_detector = BallDetection()
 ball_detector = BallDetection()
 
+# NN Classifier
+nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry'])
 
 # HSV Classifier
 hsv_classifier = HSVClassifier(filters=filters)
 
 # Add inertia to classifier
-classifier = InertiaClassifier(classifier=hsv_classifier, inertia=20)
+classifier = InertiaClassifier(classifier=nn_classifier, inertia=20)
 
 # Teams and Match
 kerry = Team(
@@ -182,4 +185,5 @@ print(f"{match.away.name} time in possession: {away_time_in_possession}")
 
 # Save Jerseys imgs
 for i, jersey in enumerate(jerseys):
-    jersey.save("./data/jerseys/jersey_{i}.jpeg")
+    img = Image.fromarray(jersey)
+    jersey.save(f'./data/jerseys/jersey_{i}.jpeg')

@@ -278,9 +278,6 @@ class HSVClassifier(BaseClassifier):
         x_start = int(width * 0.2)
         x_end = int(width * 0.8)
 
-        jersey = img[y_start:y_end, x_start:x_end]
-        self.jerseys.append(jersey)
-
         return img[y_start:y_end, x_start:x_end]
 
     def add_median_blur(self, img: np.ndarray) -> np.ndarray:
@@ -332,6 +329,12 @@ class HSVClassifier(BaseClassifier):
         np.ndarray
             Cropped image
         """
+        # For Nnet training
+        jersey = img.copy()
+        jersey = self.crop_img_for_jersey(jersey)
+        self.jerseys.append(jersey)
+
+        # For actual
         transformed_img = img.copy()
         transformed_img = self.crop_img_for_jersey(transformed_img)
         transformed_img = self.apply_filter(transformed_img, filter)

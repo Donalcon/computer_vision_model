@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 2
+names: ['dublin', 'kerry']
+
+roboflow:
+  workspace: donals-thesis
+  project: sport-id-2
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/donals-thesis/sport-id-2/dataset/1
