@@ -88,7 +88,8 @@ fig = plt.figure(figsize=(25, 4))
 for idx in range(len(test_images)):  # change 20 to however many images you want to display
     ax = fig.add_subplot(2, 20//2, idx+1, xticks=[], yticks=[])
     plt.imshow(np.transpose(test_images[idx], (1, 2, 0)))
-    ax.set_title((f'Predicted: {int_to_class[predicted[idx].item()]}, Actual: {int_to_class[test_labels[idx].item()]}'))
-
+    title_text = f'Predicted:\n {int_to_class[predicted[idx].item()]}'
+    ax.set_title(title_text)
+    plt.subplots_adjust(hspace = 0.5)  # adjust space between plots
 
 plt.show()

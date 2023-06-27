@@ -125,7 +125,7 @@ for i, frame in enumerate(video):
         detections=player_detections,
         img=frame,
     )
-    print([attr for attr in dir(player_detections) if not attr.startswith('_')])
+
     # Match update
     ball = get_main_ball(ball_detections)
     players = Player.from_detections(detections=players_detections, teams=teams)

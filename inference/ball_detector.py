@@ -23,7 +23,7 @@ class BallDetection:
 
     def load_model(self):
 
-        model = YOLO("yolov8m-football.pt")  # load a pretrained YOLOv8n model
+        model = YOLO("ball.pt")  # load a pretrained YOLOv8n model
         model.fuse()
         print(model.names)
 
