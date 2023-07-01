@@ -246,8 +246,8 @@ class Player:
 
         if self.team is not None:
             self.detection.data["color"] = self.team.color
-            print('i')
-            print(self.detection.data)
+            # print('i')
+            # print(self.detection.data)
 
         return Draw.draw_detection(self.detection, frame, confidence=confidence, id=id)
 
@@ -371,10 +371,10 @@ class Player:
 
             if "classification" in detection.data:
                 team_name = detection.data["classification"]
-                print(team_name)
+                # print(team_name)
                 team = Team.from_name(teams=teams, name=team_name)
                 detection.data["team"] = team
-                print(detection.data)
+                # print(detection.data)
 
             player = Player(detection=detection)
 
