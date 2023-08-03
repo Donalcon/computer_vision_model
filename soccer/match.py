@@ -88,8 +88,7 @@ class Match:
                 and closest_player.team is not None
         ):
             self.change_team(self.current_team)
-            self.current_team.increment_turnovers()
-            self.turnover_counter += 1
+
 
         # Pass detection
         self.pass_event.update(closest_player=closest_player, ball=ball)
@@ -106,6 +105,7 @@ class Match:
         team : Team, optional
             New team in possession
         """
+        team.increment_turnovers()
         self.team_possession = team
 
     def update_possession(self):
@@ -220,7 +220,7 @@ class Match:
                 width=right_rectangle[1][0] - right_rectangle[0][0],
                 height=right_rectangle[1][1] - right_rectangle[0][1],
                 text=away_text,
-                color=self.away.text_color,
+                color=(255, 233, 0),
             )
 
         return frame

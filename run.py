@@ -63,11 +63,15 @@ classifier = InertiaClassifier(classifier=nn_classifier, inertia=10)
 kerry = Team(
     name="kerry",
     abbreviation="KER",
-    color=(74, 103, 65),
-    board_color=(74, 103, 65),
-    text_color=(248, 190, 92),
+    color=(0, 153, 76),
+    text_color=(240, 230, 18),
 )
-dublin = Team(name="dublin", abbreviation="DUB", color=(240, 230, 18))
+dublin = Team(
+    name="dublin",
+    abbreviation="DUB",
+    color=(137, 207, 255),
+    text_color=(11, 11, 105)
+)
 teams = [dublin, kerry]
 match = Match(home=dublin, away=kerry, fps=fps)
 match.team_possession = dublin
