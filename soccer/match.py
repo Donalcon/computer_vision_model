@@ -55,28 +55,19 @@ class Match:
         ball : Ball
             Ball
         """
-
         self.update_possession()
 
-        self.ball = ball
-
         if ball is None or ball.detection is None:
-            # Check if there is a previous ball detection
-            if self.ball is not None and self.ball.detection is not None:
-                last_ball_detection = self.ball.detection
-                closest_player = min(players, key=lambda player: player.distance_to_last_ball(last_ball_detection))
-                self.closest_player = closest_player
-            else:
-                self.closest_player = None
+            self.closest_player = None
             return
 
+        self.ball = ball
 
         if not players:
             self.closest_player = None
             return
 
         closest_player = min(players, key=lambda player: player.distance_to_ball(ball))
-
         self.closest_player = closest_player
 
         ball_distance = closest_player.distance_to_ball(ball)
@@ -88,17 +79,17 @@ class Match:
         # Reset counter if team changed
         if closest_player.team != self.current_team:
             self.possession_counter = 0
-            if closest_player is not None:
-                self.current_team = closest_player.team
+            self.current_team = closest_player.team
 
         self.possession_counter += 1
 
         if (
-            self.possession_counter >= self.possesion_counter_threshold
-            and closest_player.team is not None
+                self.possession_counter >= self.possesion_counter_threshold
+                and closest_player.team is not None
         ):
             self.change_team(self.current_team)
             self.current_team.increment_turnovers()
+            self.turnover_counter += 1
 
         # Pass detection
         self.pass_event.update(closest_player=closest_player, ball=ball)
@@ -395,7 +386,7 @@ class Match:
                 width=right_rectangle[1][0] - right_rectangle[0][0],
                 height=right_rectangle[1][1] - right_rectangle[0][1],
                 text=away_text,
-                color=self.away.text_color,
+                color=(255, 233, 0),
             )
 
         return frame
@@ -642,7 +633,7 @@ class Match:
             text=self.away.abbreviation,
             counter_text=self.away.get_time_possession(self.fps),
             color=self.away.board_color,
-            text_color=self.away.text_color,
+            text_color=(255, 233, 0),
             height=31,
             width=150,
         )
@@ -658,11 +649,11 @@ class Match:
         )
         frame = self.draw_counter(
             frame,
-            origin=(counter_origin[0] + 35 + 150 + 10, counter_origin[1] + 120),
+            origin=(counter_origin[0] + 35 + 150 + 10, counter_origin[1] + 135),
             text=self.away.abbreviation,
             counter_text=str(self.away.get_turnovers()),
             color=self.away.board_color,
-            text_color=self.away.text_color,
+            text_color=(255, 233, 0),
             height=31,
             width=150,
         )
