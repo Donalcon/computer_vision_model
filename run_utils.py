@@ -62,7 +62,7 @@ def get_player_detections(
     persons = person_detector.predict(frame)
     persons = person_detector.return_Detections(persons)
     persons = persons[persons.class_id == 2]
-    persons = persons[persons.confidence > 0.35]
+    persons = persons[persons.confidence > 0.7]
     person_detections = Converter.DataFrame_to_Detections(persons)
     return person_detections
 

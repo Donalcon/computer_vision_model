@@ -31,6 +31,7 @@ class Match:
         self.away = away
         self.team_possession = self.home
         self.current_team = self.home
+
         self.possession_counter = 0
         self.turnover_counter = 0
         self.closest_player = None
@@ -87,6 +88,8 @@ class Match:
                 self.possession_counter >= self.possesion_counter_threshold
                 and closest_player.team is not None
         ):
+            if self.team_possession is not None and self.team_possession != self.current_team:
+                self.team_possession.increment_turnovers()
             self.change_team(self.current_team)
 
 
@@ -105,9 +108,8 @@ class Match:
         team : Team, optional
             New team in possession
         """
-        if self.current_team is not None:
-            self.current_team.increment_turnovers()
-        self.team_possession = team
+
+        self.current_team = team
 
     def update_possession(self):
         """

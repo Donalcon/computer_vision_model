@@ -69,7 +69,7 @@ kerry = Team(
 dublin = Team(
     name="dublin",
     abbreviation="DUB",
-    color=(240, 230, 188),
+    color=(245, 206, 11),
     text_color=(128, 0, 0)
 )
 teams = [dublin, kerry]

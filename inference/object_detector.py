@@ -86,7 +86,7 @@ class ObjectDetection:
             xmax = round(row["xmax"])
             ymax = round(row["ymax"])
 
-            mask[ymin - margin : ymax + margin, xmin - margin : xmax + margin] = 0
+            mask[ymin - margin: ymax + margin, xmin - margin: xmax + margin] = 0
 
         return mask
 
