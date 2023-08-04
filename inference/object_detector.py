@@ -15,7 +15,7 @@ class ObjectDetection:
 
     @staticmethod
     def load_model():
-        model = YOLO("C:/Users/Owner/PycharmProjects/soccer-video-analytics/best (1).pt")
+        model = YOLO("yolov8m-football.pt")
         model.fuse()
         print(model.names)
 
