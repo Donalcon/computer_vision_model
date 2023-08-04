@@ -105,7 +105,8 @@ class Match:
         team : Team, optional
             New team in possession
         """
-        team.increment_turnovers()
+        if self.current_team is not None:
+            self.current_team.increment_turnovers()
         self.team_possession = team
 
     def update_possession(self):
@@ -220,7 +221,7 @@ class Match:
                 width=right_rectangle[1][0] - right_rectangle[0][0],
                 height=right_rectangle[1][1] - right_rectangle[0][1],
                 text=away_text,
-                color=(255, 233, 0),
+                color=self.away.text_color,
             )
 
         return frame
@@ -633,13 +634,13 @@ class Match:
             text=self.away.abbreviation,
             counter_text=self.away.get_time_possession(self.fps),
             color=self.away.board_color,
-            text_color=(255, 233, 0),
+            text_color=self.away.text_color,
             height=31,
             width=150,
         )
         frame = self.draw_counter(
             frame,
-            origin=(counter_origin[0] + 35, counter_origin[1] + 120),
+            origin=(counter_origin[0] + 35, counter_origin[1] + 135),
             text=self.home.abbreviation,
             counter_text=str(self.home.get_turnovers()),
             color=self.home.board_color,
@@ -653,7 +654,7 @@ class Match:
             text=self.away.abbreviation,
             counter_text=str(self.away.get_turnovers()),
             color=self.away.board_color,
-            text_color=(255, 233, 0),
+            text_color=self.away.text_color,
             height=31,
             width=150,
         )

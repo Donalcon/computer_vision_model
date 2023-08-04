@@ -57,20 +57,20 @@ nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry'])
 hsv_classifier = HSVClassifier(filters=filters)
 
 # Add inertia to classifier
-classifier = InertiaClassifier(classifier=nn_classifier, inertia=10)
+classifier = InertiaClassifier(classifier=nn_classifier, inertia=20)
 
-# Teams and Match
+# Match
 kerry = Team(
     name="kerry",
     abbreviation="KER",
-    color=(0, 153, 76),
-    text_color=(240, 230, 18),
+    color=(21, 107, 21),
+    text_color=(109, 230, 240),
 )
 dublin = Team(
     name="dublin",
     abbreviation="DUB",
-    color=(137, 207, 255),
-    text_color=(11, 11, 105)
+    color=(240, 230, 188),
+    text_color=(128, 0, 0)
 )
 teams = [dublin, kerry]
 match = Match(home=dublin, away=kerry, fps=fps)
