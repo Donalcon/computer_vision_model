@@ -5,9 +5,9 @@ import numpy as np
 import PIL
 from norfair import Detection
 
-from soccer.ball import Ball
-from soccer.draw import Draw
-from soccer.team import Team
+from game.ball import Ball
+from game.draw import Draw
+from game.team import Team
 
 
 class Player:
@@ -91,7 +91,6 @@ class Player:
     def feet(self) -> np.ndarray:
         return np.array([self.left_foot, self.right_foot])
 
-
     def distance_to_ball(self, ball: Ball) -> float:
         """
         Returns the distance between the players center and the ball
@@ -111,7 +110,6 @@ class Player:
             return None
 
         center_distance = np.linalg.norm(ball.center - self.center)
-
 
         return center_distance
 
@@ -142,7 +140,6 @@ class Player:
 
         center_distance = np.linalg.norm(ball.detection.center - self.center)
         return center_distance
-
 
     def closest_foot_to_ball(self, ball: Ball) -> np.ndarray:
         """

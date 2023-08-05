@@ -10,9 +10,9 @@ from nn_model_utils import train_dataloader, test_dataset, val_dataset
 from nn_classifier import Net
 
 # Define the class-to-label mapping
-label_to_class = {0: 'dublin', 1: 'kerry', 2: 'referee'}
-int_to_class = {0: 'Dublin', 1: 'Kerry', 2: 'Referee'}
-class_to_int = {'Dublin': 0, 'Kerry': 1, 'Referee': 2}
+label_to_class = {0: 'dublin', 1: 'kerry'}
+int_to_class = {0: 'Dublin', 1: 'Kerry'}
+class_to_int = {'Dublin': 0, 'Kerry': 1}
 
 # Create an instance of the model
 model = Net()

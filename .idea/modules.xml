@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/soccer-video-analytics.iml" filepath="$PROJECT_DIR$/.idea/soccer-video-analytics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/possession_index.iml" filepath="$PROJECT_DIR$/.idea/possession_index.iml" />
     </modules>
   </component>
 </project>

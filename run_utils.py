@@ -6,13 +6,13 @@ import pandas as pd
 from norfair import Detection
 from norfair.camera_motion import MotionEstimator
 
-from inference import Converter, YoloV5
+from inference import Converter
 from inference.object_detector import ObjectDetection
-from soccer import Ball, Match, Referee
+from game import Ball, Match
 
 
 def get_ball_detections(
-    ball_detector: YoloV5, frame: np.ndarray
+    ball_detector, frame: np.ndarray
 ) -> List[norfair.Detection]:
     """
     Uses custom Yolov5 detector in order
@@ -38,36 +38,8 @@ def get_ball_detections(
     return Converter.DataFrame_to_Detections(ball)
 
 
-def get_ref_detections(
-    ref_detector: YoloV5, frame: np.ndarray
-) -> List[norfair.Detection]:
-    """
-    Uses YoloV5 Detector in order to detect the players
-    in a match and filter out the detections that are not players
-    and have confidence lower than 0.35.
-
-    Parameters
-    ----------
-    person_detector : YoloV5
-        YoloV5 detector
-    frame : np.ndarray
-        _description_
-
-    Returns
-    -------
-    List[norfair.Detection]
-        List of player detections
-    """
-
-    referee = ref_detector.predict(frame)
-    referee = ref_detector.return_Detections(referee)
-    referee = referee[referee.class_id == 3]
-    referee = referee[referee.confidence > 0.6]
-    ref_detections = Converter.DataFrame_to_Detections(referee)
-    return ref_detections
-
 def get_person_detections(
-    person_detector: YoloV5, frame: np.ndarray
+    person_detector, frame: np.ndarray
 ) -> Tuple[List[norfair.Detection], List[norfair.Detection]]:
     """
     Uses YoloV5 Detector in order to detect the players
@@ -205,29 +177,3 @@ def get_main_ball(detections: List[Detection], match: Match = None) -> Ball:
 
     return ball
 
-
-def get_referee(detections: List[norfair.Detection]) -> Referee:
-    """
-    Returns the detection with the highest confidence score.
-
-    Parameters
-    ----------
-    detections : List[norfair.Detection]
-        List of detections.
-
-    Returns
-    -------
-    norfair.Detection
-        Detection with the highest confidence score.
-    """
-    # Filter out detections with None scores
-    detections = [d for d in detections if d.scores is not None]
-
-    if not detections:
-        return Referee(detection=None)
-
-    best_detection = max(detections, key=lambda detection: detection.scores)
-
-    referee = Referee(detection=best_detection)
-
-    return referee

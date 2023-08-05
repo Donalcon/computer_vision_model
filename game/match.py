@@ -1,15 +1,11 @@
 from typing import List
-
-import cv2
 import numpy as np
 import PIL
-
-from soccer.ball import Ball
-from soccer.draw import Draw
-from soccer.pass_event import Pass, PassEvent
-from soccer.player import Player
-from soccer.team import Team
-from soccer.referee import Referee
+from game.ball import Ball
+from game.draw import Draw
+from game.pass_event import Pass, PassEvent
+from game.player import Player
+from game.team import Team
 
 
 class Match:
@@ -38,14 +34,14 @@ class Match:
         self.closest_player = None
         self.ball = None
         # Amount of consecutive frames new team has to have the ball in order to change possession
-        self.possesion_counter_threshold = 3
+        self.possession_counter_threshold = 3
         # Distance in pixels from player to ball in order to consider a player has the ball
         self.ball_distance_threshold = 25
         self.fps = fps
         # Pass detection
         self.pass_event = PassEvent()
 
-    def update(self, players: List[Player], ball: Ball, referee: Referee):
+    def update(self, players: List[Player], ball: Ball):
         """
 
         Update match possession and closest player
@@ -55,7 +51,6 @@ class Match:
         players : List[Player]
             List of players
         ball : Ball
-            Ball
         """
         self.update_possession()
 
@@ -87,11 +82,10 @@ class Match:
         self.possession_counter += 1
 
         if (
-                self.possession_counter >= self.possesion_counter_threshold
+                self.possession_counter >= self.possession_counter_threshold
                 and closest_player.team is not None
         ):
             self.change_team(self.current_team)
-
 
         # Pass detection
         self.pass_event.update(closest_player=closest_player, ball=ball)
@@ -257,10 +251,10 @@ class Match:
         Returns
         -------
         PIL.Image.Image
-            Drawed video frame
+            Draw video frame
         """
 
-        # Draw first one rectangle or another in orther to make the
+        # Draw first one rectangle or another in order to make the
         # rectangle bigger for better rounded corners
 
         if ratio < 0.15:
@@ -355,7 +349,7 @@ class Match:
         left_color = self.home.board_color
         right_color = self.away.board_color
 
-        # Draw first one rectangle or another in orther to make the
+        # Draw first one rectangle or another in order to make the
         # rectangle bigger for better rounded corners
         frame = self.draw_counter_rectangle(
             frame=frame,
@@ -564,13 +558,13 @@ class Match:
         Returns
         -------
         PIL.Image.Image
-            Drawed video frame
+            Draw video frame
         """
         if self.closest_player and self.ball:
             closest_foot = self.closest_player.distance_to_ball(self.ball)
 
             color = (0, 0, 0)
-            # Change line color if its greater than threshold
+            # Change line color if it's greater than threshold
             distance = self.closest_player.distance_to_ball(self.ball)
             if distance > self.ball_distance_threshold:
                 color = (255, 255, 255)

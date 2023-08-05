@@ -9,18 +9,17 @@ from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
 from inference.nn_classifier import NNClassifier
 from inference.ball_detector import BallDetection
-from inference import Converter, HSVClassifier, InertiaClassifier, YoloV5
+from inference import Converter, HSVClassifier, InertiaClassifier
 from inference.filters import filters
 from run_utils import (
     get_ball_detections,
     get_main_ball,
-    get_referee,
     get_person_detections,
     update_motion_estimator,
 )
-from soccer import Match, Player, Team
-from soccer.draw import AbsolutePath
-from soccer.pass_event import Pass
+from game import Match, Player, Team
+from game.draw import AbsolutePath
+from game.pass_event import Pass
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -125,16 +124,11 @@ for i, frame in enumerate(video):
         detections=player_detections, coord_transformations=coord_transformations
     )
 
-    ref_track_objects = referee_tracker.update(
-        detections=referee_detections, coord_transformations=coord_transformations
-    )
-
     ball_track_objects = ball_tracker.update(
         detections=ball_detections, coord_transformations=coord_transformations
     )
 
     player_detections = Converter.TrackedObjects_to_Detections(player_track_objects)
-    referee_detections = Converter.TrackedObjects_to_Detections(ref_track_objects)
     ball_detections = Converter.TrackedObjects_to_Detections(ball_track_objects)
 
     player_detections = classifier.predict_from_detections(
@@ -145,8 +139,7 @@ for i, frame in enumerate(video):
     # Match update
     ball = get_main_ball(ball_detections)
     players = Player.from_detections(detections=player_detections, teams=teams)
-    referee = get_referee(referee_detections)
-    match.update(players, ball, referee)
+    match.update(players, ball)
     frame = PIL.Image.fromarray(frame)
 
     if args.possession:
