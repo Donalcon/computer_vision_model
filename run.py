@@ -14,7 +14,7 @@ from inference.filters import filters
 from run_utils import (
     get_ball_detections,
     get_main_ball,
-    get_player_detections,
+    get_person_detections,
     update_motion_estimator,
 )
 from soccer import Match, Player, Team
@@ -47,7 +47,7 @@ video = Video(input_path=args.video)
 fps = video.video_capture.get(cv2.CAP_PROP_FPS)
 
 # Object Detectors
-player_detector = BallDetection()
+person_detector = BallDetection()
 ball_detector = BallDetection()
 
 # NN Classifier
@@ -84,6 +84,13 @@ player_tracker = Tracker(
     hit_counter_max=90,
 )
 
+referee_tracker = Tracker(
+    distance_function=mean_euclidean,
+    distance_threshold=250,
+    initialization_delay=3,
+    hit_counter_max=90,
+)
+
 ball_tracker = Tracker(
     distance_function=mean_euclidean,
     distance_threshold=150,
@@ -103,9 +110,9 @@ passes_background = match.get_passes_background()
 for i, frame in enumerate(video):
 
     # Get Detections
-    players_detections = get_player_detections(player_detector, frame)
+    player_detections, referee_detections = get_person_detections(person_detector, frame)
     ball_detections = get_ball_detections(ball_detector, frame)
-    detections = players_detections + ball_detections
+    detections = player_detections + referee_detections + ball_detections
 
     # Update trackers
     coord_transformations = update_motion_estimator(
@@ -115,7 +122,11 @@ for i, frame in enumerate(video):
     )
 
     player_track_objects = player_tracker.update(
-        detections=players_detections, coord_transformations=coord_transformations
+        detections=player_detections, coord_transformations=coord_transformations
+    )
+
+    ref_track_objects = referee_tracker.update(
+        detections=referee_detections, coord_transformations=coord_transformations
     )
 
     ball_track_objects = ball_tracker.update(
@@ -123,6 +134,7 @@ for i, frame in enumerate(video):
     )
 
     player_detections = Converter.TrackedObjects_to_Detections(player_track_objects)
+    referee_detections = Converter.TrackedObjects_to_Detections(ref_track_objects)
     ball_detections = Converter.TrackedObjects_to_Detections(ball_track_objects)
 
     player_detections = classifier.predict_from_detections(

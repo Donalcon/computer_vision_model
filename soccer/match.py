@@ -80,6 +80,7 @@ class Match:
         # Reset counter if team changed
         if closest_player.team != self.current_team:
             self.possession_counter = 0
+            self.current_team.increment_turnovers()
             self.current_team = closest_player.team
 
         self.possession_counter += 1
@@ -88,8 +89,6 @@ class Match:
                 self.possession_counter >= self.possesion_counter_threshold
                 and closest_player.team is not None
         ):
-            if self.team_possession is not None and self.team_possession != self.current_team:
-                self.team_possession.increment_turnovers()
             self.change_team(self.current_team)
 
 
@@ -109,7 +108,7 @@ class Match:
             New team in possession
         """
 
-        self.current_team = team
+        self.team_possession = team
 
     def update_possession(self):
         """

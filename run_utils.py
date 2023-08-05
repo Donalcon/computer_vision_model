@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import norfair
 import numpy as np
@@ -38,9 +38,37 @@ def get_ball_detections(
     return Converter.DataFrame_to_Detections(ball)
 
 
-def get_player_detections(
-    person_detector: YoloV5, frame: np.ndarray
+def get_ref_detections(
+    ref_detector: YoloV5, frame: np.ndarray
 ) -> List[norfair.Detection]:
+    """
+    Uses YoloV5 Detector in order to detect the players
+    in a match and filter out the detections that are not players
+    and have confidence lower than 0.35.
+
+    Parameters
+    ----------
+    person_detector : YoloV5
+        YoloV5 detector
+    frame : np.ndarray
+        _description_
+
+    Returns
+    -------
+    List[norfair.Detection]
+        List of player detections
+    """
+
+    referee = ref_detector.predict(frame)
+    referee = ref_detector.return_Detections(referee)
+    referee = referee[referee.class_id == 3]
+    referee = referee[referee.confidence > 0.6]
+    ref_detections = Converter.DataFrame_to_Detections(referee)
+    return ref_detections
+
+def get_person_detections(
+    person_detector: YoloV5, frame: np.ndarray
+) -> Tuple[List[norfair.Detection], List[norfair.Detection]]:
     """
     Uses YoloV5 Detector in order to detect the players
     in a match and filter out the detections that are not players
@@ -61,11 +89,12 @@ def get_player_detections(
 
     persons = person_detector.predict(frame)
     persons = person_detector.return_Detections(persons)
-    persons = persons[persons.class_id == 2]
     persons = persons[persons.confidence > 0.7]
-    person_detections = Converter.DataFrame_to_Detections(persons)
-    return person_detections
-
+    players = persons[persons.class_id == 2]
+    referee = persons[persons.class_id == 3]
+    player_detections = Converter.DataFrame_to_Detections(players)
+    referee_detections = Converter.DataFrame_to_Detections(referee)
+    return player_detections, referee_detections
 
 def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.ndarray:
     """
