@@ -220,10 +220,14 @@ def get_referee(detections: List[norfair.Detection]) -> Referee:
     norfair.Detection
         Detection with the highest confidence score.
     """
+    # Filter out detections with None scores
+    detections = [d for d in detections if d.scores is not None]
 
-    referee = Referee(detection=None)
+    if not detections:
+        return Referee(detection=None)
 
-    if detections:
-        referee = max(referee.detection, key=lambda detection: detection.score)
+    best_detection = max(detections, key=lambda detection: detection.scores)
+
+    referee = Referee(detection=best_detection)
 
     return referee

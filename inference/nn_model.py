@@ -10,9 +10,9 @@ from inference.nn_classifier import Net
 from inference.nn_model_utils import train_dataloader, test_dataset, val_dataset
 
 # Define the class-to-label mapping
-label_to_class = {0: 'dublin', 1: 'kerry'}
-int_to_class = {0: 'Dublin', 1: 'Kerry'}
-class_to_int = {'Dublin': 0, 'Kerry': 1}
+label_to_class = {0: 'dublin', 1: 'kerry', 2: 'referee'}
+int_to_class = {0: 'Dublin', 1: 'Kerry', 2: 'Referee'}
+class_to_int = {'Dublin': 0, 'Kerry': 1, 'Referee': 2}
 
 # Create an instance of the model
 model = Net()
@@ -47,11 +47,11 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
 
-torch.save(model.state_dict(), 'model_path.pt')
+torch.save(model.state_dict(), 'model_path2.pt')
 
 # Load the saved model
 model = Net()
-model.load_state_dict(torch.load('model_path.pt'))
+model.load_state_dict(torch.load('model_path2.pt'))
 model = model.to(device)
 model.eval()  # set model to evaluation mode
 
@@ -90,6 +90,6 @@ for idx in range(len(test_images)):  # change 20 to however many images you want
     plt.imshow(np.transpose(test_images[idx], (1, 2, 0)))
     title_text = f'Predicted:\n {int_to_class[predicted[idx].item()]}'
     ax.set_title(title_text)
-    plt.subplots_adjust(hspace = 0.5)  # adjust space between plots
+    plt.subplots_adjust(hspace=0.5)  # adjust space between plots
 
 plt.show()

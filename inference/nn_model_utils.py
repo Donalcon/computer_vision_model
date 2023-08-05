@@ -18,7 +18,7 @@ class ImageDataset(Dataset):
         self.img_dir = img_dir
         self.label_dir = label_dir
         self.transform = transform
-        self.class_to_int = {'dublin': 0, 'kerry': 1}
+        self.class_to_int = {'dublin': 0, 'kerry': 1, 'referee': 2}
         self.img_names = os.listdir(img_dir)
         self.labels = os.listdir(label_dir)  # this assumes that the labels are in the same order as the images
 
@@ -43,9 +43,9 @@ class ImageDataset(Dataset):
 
 
 
-train_dataset = ImageDataset("data/dub_vs_kerry/train/images", "data/dub_vs_kerry/train/labels", transform=transform)
-val_dataset = ImageDataset("data/dub_vs_kerry/valid/images", "data/dub_vs_kerry/valid/labels", transform=transform)
-test_dataset = ImageDataset("data/dub_vs_kerry/test/images", "data/dub_vs_kerry/test/labels", transform=transform)
+train_dataset = ImageDataset("data/dub_vs_kerry2/train/images", "data/dub_vs_kerry2/train/labels", transform=transform)
+val_dataset = ImageDataset("data/dub_vs_kerry2/valid/images", "data/dub_vs_kerry2/valid/labels", transform=transform)
+test_dataset = ImageDataset("data/dub_vs_kerry2/test/images", "data/dub_vs_kerry2/test/labels", transform=transform)
 
 train_dataloader = DataLoader(train_dataset, batch_size=32, shuffle=False)
 val_dataloader = DataLoader(val_dataset, batch_size=32, shuffle=False)

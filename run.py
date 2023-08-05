@@ -52,7 +52,7 @@ person_detector = BallDetection()
 ball_detector = BallDetection()
 
 # NN Classifier
-nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry'])
+nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry', 'referee'])
 
 # HSV Classifier
 hsv_classifier = HSVClassifier(filters=filters)
