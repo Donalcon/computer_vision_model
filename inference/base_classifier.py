@@ -8,7 +8,7 @@ import norfair
 import numpy as np
 import pandas as pd
 
-from inference.box import Box
+from box import Box
 
 
 class BaseClassifier(ABC):

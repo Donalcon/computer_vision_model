@@ -56,7 +56,6 @@ nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry', 'referee'])
 
 # HSV Classifier
 hsv_classifier = HSVClassifier(filters=filters)
-
 # Add inertia to classifier
 classifier = InertiaClassifier(classifier=nn_classifier, inertia=20)
 

@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torchvision
 
-from inference.nn_classifier import Net
-from inference.nn_model_utils import train_dataloader, test_dataset, val_dataset
+from nn_model_utils import train_dataloader, test_dataset, val_dataset
+from nn_classifier import Net
 
 # Define the class-to-label mapping
 label_to_class = {0: 'dublin', 1: 'kerry', 2: 'referee'}
