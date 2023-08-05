@@ -204,3 +204,26 @@ def get_main_ball(detections: List[Detection], match: Match = None) -> Ball:
         ball.detection = detections[0]
 
     return ball
+
+
+def get_referee(detections: List[norfair.Detection]) -> norfair.Detection:
+    """
+    Returns the detection with the highest confidence score.
+
+    Parameters
+    ----------
+    detections : List[norfair.Detection]
+        List of detections.
+
+    Returns
+    -------
+    norfair.Detection
+        Detection with the highest confidence score.
+    """
+
+    if not detections:
+        return None
+
+    referee = max(detections, key=lambda detection: detection.score)
+
+    return referee

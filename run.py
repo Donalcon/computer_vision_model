@@ -14,6 +14,7 @@ from inference.filters import filters
 from run_utils import (
     get_ball_detections,
     get_main_ball,
+    get_referee,
     get_person_detections,
     update_motion_estimator,
 )
@@ -144,10 +145,9 @@ for i, frame in enumerate(video):
 
     # Match update
     ball = get_main_ball(ball_detections)
-    players = Player.from_detections(detections=players_detections, teams=teams)
+    players = Player.from_detections(detections=player_detections, teams=teams)
+    referee = get_referee(referee_detections)
     match.update(players, ball)
-    # Add in pickle file.
-    # Draw
     frame = PIL.Image.fromarray(frame)
 
     if args.possession:

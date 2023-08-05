@@ -9,6 +9,7 @@ from soccer.draw import Draw
 from soccer.pass_event import Pass, PassEvent
 from soccer.player import Player
 from soccer.team import Team
+from soccer.referee import Referee
 
 
 class Match:
@@ -44,7 +45,7 @@ class Match:
         # Pass detection
         self.pass_event = PassEvent()
 
-    def update(self, players: List[Player], ball: Ball):
+    def update(self, players: List[Player], ball: Ball, referee: Referee):
         """
 
         Update match possession and closest player
