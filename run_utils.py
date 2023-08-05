@@ -8,7 +8,7 @@ from norfair.camera_motion import MotionEstimator
 
 from inference import Converter, YoloV5
 from inference.object_detector import ObjectDetection
-from soccer import Ball, Match
+from soccer import Ball, Match, Referee
 
 
 def get_ball_detections(
@@ -206,7 +206,7 @@ def get_main_ball(detections: List[Detection], match: Match = None) -> Ball:
     return ball
 
 
-def get_referee(detections: List[norfair.Detection]) -> norfair.Detection:
+def get_referee(detections: List[norfair.Detection]) -> Referee:
     """
     Returns the detection with the highest confidence score.
 
@@ -221,9 +221,9 @@ def get_referee(detections: List[norfair.Detection]) -> norfair.Detection:
         Detection with the highest confidence score.
     """
 
-    if not detections:
-        return None
+    referee = Referee(detection=None)
 
-    referee = max(detections, key=lambda detection: detection.score)
+    if detections:
+        referee = max(referee.detection, key=lambda detection: detection.score)
 
     return referee

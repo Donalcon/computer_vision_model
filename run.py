@@ -147,7 +147,7 @@ for i, frame in enumerate(video):
     ball = get_main_ball(ball_detections)
     players = Player.from_detections(detections=player_detections, teams=teams)
     referee = get_referee(referee_detections)
-    match.update(players, ball)
+    match.update(players, ball, referee)
     frame = PIL.Image.fromarray(frame)
 
     if args.possession:

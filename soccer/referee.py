@@ -3,6 +3,7 @@ from typing import List
 
 import numpy as np
 import PIL
+import norfair
 from norfair import Detection
 
 from soccer.ball import Ball
@@ -49,6 +50,4 @@ class Referee:
         self.detection.data["color"] = (0, 0, 0)
 
         return Draw.draw_detection(self.detection, frame, confidence=confidence, id=id)
-
-
 
