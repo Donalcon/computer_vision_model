@@ -11,12 +11,8 @@ B
 game/pass_event.py,f\6\f60cabc185180d17d1616697a00d0cb3a3a8e98c
 L
 inference/object_detector.py,6\b\6b5a3828daa9ccf5dc4fb1c117e6ac9ef406e5b4
-F
-inference/converter.py,2\f\2ff0e2bbfe510d9a42274a6df0a14879e8eb468d
 <
 game/draw.py,1\4\1496908fa90b9e8ba5dd7156ba13c0818d9e4d0c
-J
-inference/ball_detector.py,2\2\22b9fdc9e568ec8d6bb6ea23b060fe5fb82d3025
 C
 inference/colors.py,3\4\345464734ef60fd0ea554bfdedb9e02fd8545913
 <
