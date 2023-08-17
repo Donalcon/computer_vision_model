@@ -9,6 +9,7 @@ from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
 from inference.nn_classifier import NNClassifier
 from inference.ball_detector import BallDetection
+from inference.sahi_ball_detector import SahiBallDetection
 from inference import Converter, HSVClassifier, InertiaClassifier
 from inference.filters import filters
 from run_utils import (
@@ -16,6 +17,8 @@ from run_utils import (
     get_main_ball,
     get_person_detections,
     update_motion_estimator,
+    get_sahi_ball_detections,
+    get_sahi_person_detections
 )
 from game import Match, Player, Team
 from game.draw import AbsolutePath
@@ -47,8 +50,8 @@ video = Video(input_path=args.video)
 fps = video.video_capture.get(cv2.CAP_PROP_FPS)
 
 # Object Detectors
-person_detector = BallDetection()
-ball_detector = BallDetection()
+person_detector = SahiBallDetection()
+ball_detector = SahiBallDetection()
 
 # NN Classifier
 nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry', 'referee'])
@@ -109,9 +112,9 @@ passes_background = match.get_passes_background()
 for i, frame in enumerate(video):
 
     # Get Detections
-    player_detections, referee_detections = get_person_detections(person_detector, frame)
-    ball_detections = get_ball_detections(ball_detector, frame)
-    detections = player_detections + referee_detections + ball_detections
+    player_detections = get_sahi_person_detections(person_detector, frame)
+    ball_detections = get_sahi_ball_detections(ball_detector, frame)
+    detections = player_detections + ball_detections
 
     # Update trackers
     coord_transformations = update_motion_estimator(

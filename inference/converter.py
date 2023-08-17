@@ -41,7 +41,10 @@ class Converter:
             # get the predicted class
             class_id = arr.class_id
             confidence = arr.confidence
-
+            print(box)
+            print(type(box))
+            print(class_id)
+            print(type(class_id))
             data = {
                 "name": class_id,
                 "p": confidence,
@@ -64,6 +67,52 @@ class Converter:
             detections.append(detection)
 
         return detections
+
+    def sahi_DataFrame_to_Detections(detections_list: List)-> List[norfair.Detection]:
+        """
+        Converts a DataFrame to a list of norfair.Detection
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            DataFrame containing the bounding boxes
+
+        Returns
+        -------
+        List[norfair.Detection]
+            List of norfair.Detection
+        """
+
+        norfair_detections = []
+
+        for detection_info in detections_list:
+            # get the bounding box coordinates
+            xmin, ymin, xmax, ymax = detection_info.xyxy
+
+            box = np.array(
+                [
+                    [xmin, ymin],
+                    [xmax, ymax],
+                ]
+            )
+
+            # get the predicted class and confidence
+            class_id = detection_info.class_id
+            confidence = detection_info.confidence
+
+            data = {
+                "name": class_id,
+                "p": confidence,
+            }
+
+            norfair_detection = norfair.Detection(
+                points=box,
+                data=data,
+            )
+
+            norfair_detections.append(norfair_detection)
+
+        return norfair_detections
 
     @staticmethod
     def Detections_to_DataFrame(detections: List[norfair.Detection]) -> pd.DataFrame:

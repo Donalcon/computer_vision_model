@@ -4,9 +4,19 @@ import cv2
 from time import time
 from ultralytics import YOLO
 import supervision as sv
+from sahi.models.custom import Yolov8DetectionModel
+from sahi.predict import get_prediction, get_sliced_prediction, predict
 
+from dataclasses import dataclass
+from typing import List
 
-class BallDetection:
+@dataclass
+class DetectionInfo:
+    xyxy: List[int]
+    confidence: List[float]
+    class_id: List[int]
+
+class SahiBallDetection:
 
     def __init__(self):
 
@@ -23,46 +33,47 @@ class BallDetection:
 
     def load_model(self):
 
-        model = YOLO("yolov8m-football.pt")  # load a pretrained YOLOv8n model
-        model.fuse()
-        print(model.names)
+        model = Yolov8DetectionModel()  # load a pretrained YOLOv8n model
 
         return model
 
     def predict(self, frame):
-
-        results = self.model(frame)
+        height, width, _ = frame.shape
+        results = get_sliced_prediction(
+            frame,
+            self.model,
+            slice_height=270,
+            slice_width=480,
+            overlap_height_ratio=0.2,
+            overlap_width_ratio=0.2
+        )
 
         return results
 
     def return_Detections(self, results):
-        # xyxys = []
-        # confidences = []
-        # class_ids = []
-        #
-        # # Extract detections for person and ball classes
-        # for result in results:
-        #     boxes = result.boxes.cpu().numpy()
-        #     class_id = boxes.cls[0]
-        #     conf = boxes.conf[0]
-        #     xyxy = boxes.xyxy[0]
-        #
-        #     if class_id == 0.0 or class_id == 32.0:
-        #         xyxys.append(result.boxes.xyxy.cpu().numpy())
-        #         confidences.append(result.boxes.conf.cpu().numpy())
-        #         class_ids.append(result.boxes.cls.cpu().numpy().astype(int))
+        detection_list = []
+        for pred in results.object_prediction_list:
+            xyxy = pred.bbox
+            confidence = pred.score
+            class_id = pred.category
+
+            # Create an instance of the DetectionInfo class with the collected variables
+            detection_info = DetectionInfo(xyxy=xyxy, confidence=confidence, class_id=class_id)
+            detection_list.append(detection_info)
+
+        return detection_list
 
         # Setup detections for visualization
-        detections = sv.Detections(
-                    xyxy=results[0].boxes.xyxy.cpu().numpy(),
-                    confidence=results[0].boxes.conf.cpu().numpy(),
-                    class_id=results[0].boxes.cls.cpu().numpy().astype(int),
-                    )
+        #detections = sv.Detections(
+        #            xyxy=pred_list[0].bbox,
+        #            confidence=pred_list[0].score,
+        #            class_id=pred_list[0].category,
+        #            )
 
         # Format custom labels
         # self.labels = [f"{self.CLASS_NAMES_DICT[class_id]} {confidence:0.2f}"
         #                for class_id, confidence in zip(detections.class_id, detections.confidence)]
-        return detections
+        #return detections
 
     #def annotate(self):
 

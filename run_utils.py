@@ -10,6 +10,36 @@ from inference import Converter
 from inference.object_detector import ObjectDetection
 from game import Ball, Match
 
+def get_sahi_ball_detections(
+    ball_detector, frame: np.ndarray
+) -> List[norfair.Detection]:
+    """
+    Uses custom Yolov5 detector in order
+    to get the predictions of the ball and converts it to
+    Norfair.Detection list.
+
+    Parameters
+    ----------
+    ball_detector : YoloV5
+        YoloV5 detector for balls
+    frame : np.ndarray
+        Frame to get the ball detections from
+
+    Returns
+    -------
+    List[norfair.Detection]
+        List of ball detections
+    """
+    ball = ball_detector.predict(frame)
+    detections = ball_detector.return_Detections(ball)
+
+    # Filter out the detections based on class_id and confidence
+    valid_detections = [
+        detection for detection in detections
+        if detection.class_id == 0 and detection.confidence > 0.05
+    ]
+
+    return Converter.sahi_DataFrame_to_Detections(valid_detections)
 
 def get_ball_detections(
     ball_detector, frame: np.ndarray
@@ -67,6 +97,37 @@ def get_person_detections(
     player_detections = Converter.DataFrame_to_Detections(players)
     referee_detections = Converter.DataFrame_to_Detections(referee)
     return player_detections, referee_detections
+
+def get_sahi_person_detections(
+    person_detector, frame: np.ndarray
+) -> Tuple[List[norfair.Detection], List[norfair.Detection]]:
+    """
+    Uses YoloV5 Detector in order to detect the players
+    in a match and filter out the detections that are not players
+    and have confidence lower than 0.35.
+
+    Parameters
+    ----------
+    person_detector : YoloV5
+        YoloV5 detector
+    frame : np.ndarray
+        _description_
+
+    Returns
+    -------
+    List[norfair.Detection]
+        List of player detections
+    """
+
+    detections = person_detector.predict(frame)
+    detections = person_detector.return_Detections(detections)
+    # Filter out the detections based on class_id and confidence
+    person_detections = [
+        detection for detection in detections
+        if detection.class_id == 2 and detection.confidence > 0.07
+    ]
+
+    return Converter.sahi_DataFrame_to_Detections(person_detections)
 
 def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.ndarray:
     """
