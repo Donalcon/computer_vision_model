@@ -52,7 +52,7 @@ class BallDetection:
         #         confidences.append(result.boxes.conf.cpu().numpy())
         #         class_ids.append(result.boxes.cls.cpu().numpy().astype(int))
 
-
+        # gg
         # Setup detections for visualization
         detections = sv.Detections(
                     xyxy=results[0].boxes.xyxy.cpu().numpy(),
