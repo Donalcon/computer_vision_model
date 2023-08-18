@@ -10,6 +10,7 @@ from norfair.distances import mean_euclidean
 from inference.nn_classifier import NNClassifier
 from inference.ball_detector import BallDetection
 from inference.sahi_ball_detector import SahiBallDetection
+from inference.sahi import SahiDetector
 from inference import Converter, HSVClassifier, InertiaClassifier
 from inference.filters import filters
 from run_utils import (

@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from time import time
 from ultralytics import YOLO
+from inference.sahi import SahiDetector
 import supervision as sv
 from sahi.models.custom import Yolov8DetectionModel
 from sahi.predict import get_prediction, get_sliced_prediction, predict
@@ -33,7 +34,7 @@ class SahiBallDetection:
 
     def load_model(self):
 
-        model = Yolov8DetectionModel()  # load a pretrained YOLOv8n model
+        model = SahiDetector()  # load a pretrained YOLOv8n model
 
         return model
 
@@ -52,7 +53,7 @@ class SahiBallDetection:
 
     def return_Detections(self, results):
         detection_list = []
-        for pred in results.object_prediction_list:
+        for pred in results.object_prediction_list_per_image:
             xyxy = pred.bbox
             confidence = pred.score
             class_id = pred.category
