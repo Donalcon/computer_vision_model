@@ -34,12 +34,12 @@ def get_sahi_ball_detections(
     detections = ball_detector.return_Detections(ball)
 
     # Filter out the detections based on class_id and confidence
-    valid_detections = [
-        detection for detection in detections
-        if detection.class_id == 0 and detection.confidence > 0.05
+    ball_detections = [
+      detection for detection in detections
+      if detection[2] == 0 and detection[1] > 0.05
     ]
 
-    return Converter.sahi_DataFrame_to_Detections(valid_detections)
+    return Converter.sahi_DataFrame_to_Detections(ball_detections)
 
 def get_ball_detections(
     ball_detector, frame: np.ndarray
@@ -123,8 +123,8 @@ def get_sahi_person_detections(
     detections = person_detector.return_Detections(detections)
     # Filter out the detections based on class_id and confidence
     person_detections = [
-        detection for detection in detections
-        if detection.class_id == 2 and detection.confidence > 0.07
+      detection for detection in detections
+      if detection[2] == 2 and detection[1] > 0.07
     ]
 
     return Converter.sahi_DataFrame_to_Detections(person_detections)

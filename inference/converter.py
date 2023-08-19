@@ -87,7 +87,7 @@ class Converter:
 
         for detection_info in detections_list:
             # get the bounding box coordinates
-            xmin, ymin, xmax, ymax = detection_info.xyxy
+            xmin, ymin, xmax, ymax = detection_info[0]
 
             box = np.array(
                 [
@@ -97,8 +97,8 @@ class Converter:
             )
 
             # get the predicted class and confidence
-            class_id = detection_info.class_id
-            confidence = detection_info.confidence
+            class_id = detection_info.class_id[2]
+            confidence = detection_info.confidence[1]
 
             data = {
                 "name": class_id,
