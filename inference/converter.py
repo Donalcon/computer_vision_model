@@ -95,10 +95,9 @@ class Converter:
                     [xmax, ymax],
                 ]
             )
-
             # get the predicted class and confidence
-            class_id = detection_info.class_id[2]
-            confidence = detection_info.confidence[1]
+            class_id = detection_info[2]
+            confidence = detection_info[1]
 
             data = {
                 "name": class_id,

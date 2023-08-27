@@ -5,6 +5,7 @@ from time import time
 from ultralytics import YOLO
 from inference.sahi import SahiDetector
 import supervision as sv
+from sahi import AutoDetectionModel
 from sahi.models.custom import Yolov8DetectionModel
 from sahi.predict import get_prediction, get_sliced_prediction, predict
 
@@ -34,7 +35,11 @@ class SahiBallDetection:
 
     def load_model(self):
 
-        model = SahiDetector()  # load a pretrained YOLOv8n model
+        model = AutoDetectionModel.from_pretrained(
+            model_type='yolov8',
+            model_path='best (3).pt',
+            confidence_threshold=0.05,
+        )
 
         return model
 
@@ -61,8 +66,8 @@ class SahiBallDetection:
             detection_list.append((xyxy, confidence, class_id))
 
             # Create an instance of the DetectionInfo class with the collected variables
-            detection_info = DetectionInfo(xyxy=xyxy, confidence=confidence, class_id=class_id)
-            detection_list.append(detection_info)
+            # detection_info = DetectionInfo(xyxy=xyxy, confidence=confidence, class_id=class_id)
+            # detection_list.append(detection_info)
 
         return detection_list
 
