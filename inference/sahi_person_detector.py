@@ -37,33 +37,32 @@ class SahiBallDetection:
 
         model = AutoDetectionModel.from_pretrained(
             model_type='yolov8',
-            model_path='seg-5epoch.pt',
-            confidence_threshold=0.15,
+            model_path='seg5ep-notile.pt',
+            confidence_threshold=0.7,
         )
 
         return model
 
     def predict(self, frame):
         height, width, _ = frame.shape
-        results = get_sliced_prediction(
+        results = get_prediction(
             frame,
             self.model,
-            slice_height=270,
-            slice_width=480,
-            overlap_height_ratio=0.2,
-            overlap_width_ratio=0.2
         )
 
         return results
 
     def return_Detections(self, results):
         detection_list = []
+        print(results.object_prediction_list)
+        print(dir(results.object_prediction_list))
         for pred in results.object_prediction_list:
             xyxy = (pred.bbox.minx, pred.bbox.miny, pred.bbox.maxx, pred.bbox.maxy)
             confidence = pred.score.value
             class_id = pred.category.id
+            mask = pred.mask
 
-            detection_list.append((xyxy, confidence, class_id))
+            detection_list.append((xyxy, confidence, class_id), mask)
 
             # Create an instance of the DetectionInfo class with the collected variables
             # detection_info = DetectionInfo(xyxy=xyxy, confidence=confidence, class_id=class_id)

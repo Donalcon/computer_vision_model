@@ -114,7 +114,7 @@ for i, frame in enumerate(video):
 
     # Get Detections
     player_detections = get_sahi_person_detections(person_detector, frame)
-    ball_detections = get_sahi_ball_detections(ball_detector, frame)
+    ball_detections = get_sahi_person_detections(ball_detector, frame)
     detections = player_detections + ball_detections
 
     # Update trackers

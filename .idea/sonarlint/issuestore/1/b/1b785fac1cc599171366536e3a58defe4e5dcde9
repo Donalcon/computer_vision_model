@@ -1,7 +1,0 @@
-
-Lpython:S1066"/Merge this if statement with the enclosing one.(óØË´úÿÿÿÿ
-fpython:S1226)"NIntroduce a new variable or use its initial value before reassigning 'points'.(Â÷¤º
-}python:S5886n"eReturn a value of type "float" instead of "NoneType" or update function "distance_to_ball" type hint.(ò¤Ÿù
-ƒpython:S5886„"jReturn a value of type "float" instead of "NoneType" or update function "distance_to_last_ball" type hint.(ò¤Ÿù
-ƒpython:S5886‹"jReturn a value of type "float" instead of "NoneType" or update function "distance_to_last_ball" type hint.(ò¤Ÿù
-<python:S125ö"Remove this commented out code.(Ê×“·ýÿÿÿÿ

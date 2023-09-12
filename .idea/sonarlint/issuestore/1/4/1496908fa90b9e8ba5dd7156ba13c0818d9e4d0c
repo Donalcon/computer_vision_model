@@ -1,15 +1,0 @@
-
-Cpython:S5806°"+Rename this variable; it shadows a builtin.(ö¶÷1
-upython:S117®"XRename this local variable "newData" to match the regular expression ^[_a-z][a-z0-9_]*$.(ù¹èÿÿÿÿÿ
-Wpython:S3516Ğ"9Refactor this method to not always return the same value.(ø‚ºşÿÿÿÿ
-lpython:S117ã"TRename this local variable "Len" to match the regular expression ^[_a-z][a-z0-9_]*$.(ÈØ­
-kpython:S117ß"SRename this local variable "dX" to match the regular expression ^[_a-z][a-z0-9_]*$.(¡ÚÑË
-ppython:S117à"SRename this local variable "dY" to match the regular expression ^[_a-z][a-z0-9_]*$.(áùÍğıÿÿÿÿ
-npython:S117ô"VRename this local variable "leftX" to match the regular expression ^[_a-z][a-z0-9_]*$.(øıŠ
-npython:S117õ"VRename this local variable "leftY" to match the regular expression ^[_a-z][a-z0-9_]*$.(ôïĞ§
-spython:S117í"VRename this local variable "perpX" to match the regular expression ^[_a-z][a-z0-9_]*$.(³´Ğ‘ùÿÿÿÿ
-npython:S117î"VRename this local variable "perpY" to match the regular expression ^[_a-z][a-z0-9_]*$.(¶‘éà
-tpython:S117÷"WRename this local variable "rightX" to match the regular expression ^[_a-z][a-z0-9_]*$.(šÂçîúÿÿÿÿ
-opython:S117ø"WRename this local variable "rightY" to match the regular expression ^[_a-z][a-z0-9_]*$.(–Ú¸¶
-lpython:S117é"TRename this local variable "udX" to match the regular expression ^[_a-z][a-z0-9_]*$.(è¢ŠÚ
-kpython:S117ê"TRename this local variable "udY" to match the regular expression ^[_a-z][a-z0-9_]*$.(ä–i

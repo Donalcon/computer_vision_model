@@ -4,6 +4,7 @@ from typing import List
 import norfair
 import numpy as np
 import PIL
+from PIL import Image, ImageDraw
 
 
 class Draw:
@@ -188,6 +189,64 @@ class Draw:
                 text=str(round(detection.data["p"], 2)),
                 color=color,
             )
+
+        return img
+
+    def draw_detection_mask(
+            detection: norfair.Detection,
+            img: PIL.Image.Image,
+            confidence: bool = False,
+            id: bool = False,
+    ) -> PIL.Image.Image:
+        """
+        Draw a mask on the image from a norfair.Detection
+
+        Parameters
+        ----------
+        detection : norfair.Detection
+            Detection to draw
+        img : PIL.Image.Image
+            Image
+        confidence : bool, optional
+            Whether to draw confidence, by default False
+        id : bool, optional
+            Whether to draw id, by default False
+
+        Returns
+        -------
+        PIL.Image.Image
+            Image with the mask drawn
+        """
+
+        if detection is None:
+            return img
+
+        mask = detection.mask
+        if mask is None:
+            return img
+
+        mask_image = Image.fromarray((mask * 255).astype(np.uint8), mode='L')
+        mask_image = mask_image.convert('RGBA')
+
+        color = (0, 0, 0)
+        if "color" in detection.data:
+            color = detection.data["color"] + (255,)
+
+        img.paste(mask_image, (0, 0), mask_image)
+
+        if "label" in detection.data:
+            label = detection.data["label"]
+            draw = ImageDraw.Draw(img)
+            draw.text((0, 0), label, fill=color)
+
+        if "id" in detection.data and id is True:
+            id_value = detection.data["id"]
+            draw = ImageDraw.Draw(img)
+            draw.text((0, 0), f"ID: {id_value}", fill=color)
+
+        if confidence:
+            draw = ImageDraw.Draw(img)
+            draw.text((0, 0), str(round(detection.data["p"], 2)), fill=color)
 
         return img
 
