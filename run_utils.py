@@ -36,7 +36,7 @@ def get_sahi_ball_detections(
     # Filter out the detections based on class_id and confidence
     ball_detections = [
       detection for detection in detections
-      if detection[2] == 0 and detection[1] > 0.05
+      if detection[2] == 0 and detection[1] > 0.15
     ]
 
     return Converter.sahi_DataFrame_to_Detections(ball_detections)
@@ -124,7 +124,7 @@ def get_sahi_person_detections(
     # Filter out the detections based on class_id and confidence
     person_detections = [
       detection for detection in detections
-      if detection[2] == 2 and detection[1] > 0.07
+      if detection[3] == 2 and detection[1] > 0.3
     ]
 
     return Converter.sahi_DataFrame_to_Detections(person_detections)

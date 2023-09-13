@@ -6,7 +6,6 @@ from ultralytics import YOLO
 from inference.sahi import SahiDetector
 import supervision as sv
 from sahi import AutoDetectionModel
-from sahi.models.custom import Yolov8DetectionModel
 from sahi.predict import get_prediction, get_sliced_prediction, predict
 
 from dataclasses import dataclass
@@ -22,25 +21,19 @@ class SahiBallDetection:
 
     def __init__(self):
 
-        #self.capture_index = capture_index
-
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print("Using Device: ", self.device)
 
         self.model = self.load_model()
-
-
-
-        self.box_annotator = sv.BoxAnnotator(sv.ColorPalette.default(), thickness=3, text_thickness=3, text_scale=1.5)
 
     def load_model(self):
 
         model = AutoDetectionModel.from_pretrained(
             model_type='yolov8',
             model_path='seg-5epoch.pt',
+            config_path='data.yaml',
             confidence_threshold=0.15,
         )
-
         return model
 
     def predict(self, frame):
@@ -58,12 +51,15 @@ class SahiBallDetection:
 
     def return_Detections(self, results):
         detection_list = []
+        print(results.object_prediction_list)
+        print(dir(results.object_prediction_list))
         for pred in results.object_prediction_list:
             xyxy = (pred.bbox.minx, pred.bbox.miny, pred.bbox.maxx, pred.bbox.maxy)
             confidence = pred.score.value
             class_id = pred.category.id
-
-            detection_list.append((xyxy, confidence, class_id))
+            mask = pred.mask
+            detection_list.append((xyxy, confidence, class_id, mask))
+            print('ball mask:', mask)
 
             # Create an instance of the DetectionInfo class with the collected variables
             # detection_info = DetectionInfo(xyxy=xyxy, confidence=confidence, class_id=class_id)
@@ -136,5 +132,5 @@ class SahiBallDetection:
 
     def __call__(self, frame):
         results = self.predict(frame)
-        detections = self.plot_bboxes(results, frame)
-        return detections
+        return results
+        

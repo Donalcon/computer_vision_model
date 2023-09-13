@@ -6,7 +6,6 @@ from ultralytics import YOLO
 from inference.sahi import SahiDetector
 import supervision as sv
 from sahi import AutoDetectionModel
-from sahi.models.custom import Yolov8DetectionModel
 from sahi.predict import get_prediction, get_sliced_prediction, predict
 
 from dataclasses import dataclass
@@ -18,7 +17,7 @@ class DetectionInfo:
     confidence: List[float]
     class_id: List[int]
 
-class SahiBallDetection:
+class SahiPersonDetection:
 
     def __init__(self):
 
@@ -37,8 +36,9 @@ class SahiBallDetection:
 
         model = AutoDetectionModel.from_pretrained(
             model_type='yolov8',
-            model_path='seg5ep-notile.pt',
-            confidence_threshold=0.7,
+            model_path='seg5ep-no-tile.pt',
+            config_path='data.yaml',
+            confidence_threshold=0.3,
         )
 
         return model
@@ -49,21 +49,18 @@ class SahiBallDetection:
             frame,
             self.model,
         )
-
         return results
 
     def return_Detections(self, results):
         detection_list = []
-        print(results.object_prediction_list)
-        print(dir(results.object_prediction_list))
         for pred in results.object_prediction_list:
             xyxy = (pred.bbox.minx, pred.bbox.miny, pred.bbox.maxx, pred.bbox.maxy)
             confidence = pred.score.value
             class_id = pred.category.id
             mask = pred.mask
 
-            detection_list.append((xyxy, confidence, class_id), mask)
-
+            detection_list.append((xyxy, confidence, class_id, mask))
+            print('person mask:', mask)
             # Create an instance of the DetectionInfo class with the collected variables
             # detection_info = DetectionInfo(xyxy=xyxy, confidence=confidence, class_id=class_id)
             # detection_list.append(detection_info)

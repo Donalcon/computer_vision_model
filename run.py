@@ -10,6 +10,7 @@ from norfair.distances import mean_euclidean
 from inference.nn_classifier import NNClassifier
 from inference.ball_detector import BallDetection
 from inference.sahi_ball_detector import SahiBallDetection
+from inference.sahi_person_detector import SahiPersonDetection
 from inference.sahi import SahiDetector
 from inference import Converter, HSVClassifier, InertiaClassifier
 from inference.filters import filters
@@ -51,7 +52,7 @@ video = Video(input_path=args.video)
 fps = video.video_capture.get(cv2.CAP_PROP_FPS)
 
 # Object Detectors
-person_detector = SahiBallDetection()
+person_detector = SahiPersonDetection()
 ball_detector = SahiBallDetection()
 
 # NN Classifier
@@ -114,7 +115,7 @@ for i, frame in enumerate(video):
 
     # Get Detections
     player_detections = get_sahi_person_detections(person_detector, frame)
-    ball_detections = get_sahi_person_detections(ball_detector, frame)
+    ball_detections = get_sahi_ball_detections(ball_detector, frame)
     detections = player_detections + ball_detections
 
     # Update trackers
