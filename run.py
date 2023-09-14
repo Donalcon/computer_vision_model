@@ -56,7 +56,7 @@ print('fps:', fps)
 # Object Detectors
 person_detector = SahiPersonDetection()
 ball_detector = SahiBallDetection()
-referee_detector = SahiBallDetection()
+referee_detector = SahiPersonDetection()
 
 # NN Classifier
 nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry', 'referee'])

@@ -36,13 +36,13 @@ def get_sahi_ball_detections(
     # Filter out the detections based on class_id and confidence
     ball_detections = [
       detection for detection in detections
-      if detection[2] == 0 and detection[1] > 0.15
+      if detection[2] == 0 and detection[1] > 0.175
     ]
 
     return Converter.sahi_DataFrame_to_Detections(ball_detections)
 
 def get_sahi_ref_detections(
-    ball_detector, frame: np.ndarray
+    referee_detector, frame: np.ndarray
 ) -> List[norfair.Detection]:
     """
     Uses custom Yolov5 detector in order
@@ -61,8 +61,8 @@ def get_sahi_ref_detections(
     List[norfair.Detection]
         List of ball detections
     """
-    referee = ball_detector.predict(frame)
-    detections = ball_detector.return_Detections(referee)
+    referee = referee_detector.predict(frame)
+    detections = referee_detector.return_Detections(referee)
 
     # Iterate through detections and find the best one over the threshold
     ref_detections = [
@@ -155,7 +155,7 @@ def get_sahi_person_detections(
     # Filter out the detections based on class_id and confidence
     person_detections = [
       detection for detection in detections
-      if detection[3] == 2 and detection[1] > 0.3
+      if detection[2] == 3 and detection[1] > 0.5
     ]
 
     return Converter.sahi_DataFrame_to_Detections(person_detections)
