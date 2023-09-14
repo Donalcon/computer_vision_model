@@ -132,7 +132,7 @@ class Ball:
         if self.detection is None:
             return frame
 
-        return Draw.draw_detection(self.detection, frame)
+        return Draw.draw_detection(self.detection, frame, confidence=True)
 
     def __str__(self):
         return f"Ball: {self.center}"
