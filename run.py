@@ -17,10 +17,12 @@ from inference.filters import filters
 from run_utils import (
     get_ball_detections,
     get_main_ball,
+    get_main_ref,
     get_person_detections,
     update_motion_estimator,
     get_sahi_ball_detections,
-    get_sahi_person_detections
+    get_sahi_person_detections,
+    get_sahi_ref_detections,
 )
 from game import Match, Player, Team
 from game.draw import AbsolutePath
@@ -50,10 +52,11 @@ args = parser.parse_args()
 
 video = Video(input_path=args.video)
 fps = video.video_capture.get(cv2.CAP_PROP_FPS)
-
+print('fps:', fps)
 # Object Detectors
 person_detector = SahiPersonDetection()
 ball_detector = SahiBallDetection()
+referee_detector = SahiBallDetection()
 
 # NN Classifier
 nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry', 'referee'])
@@ -116,6 +119,7 @@ for i, frame in enumerate(video):
     # Get Detections
     player_detections = get_sahi_person_detections(person_detector, frame)
     ball_detections = get_sahi_ball_detections(ball_detector, frame)
+    referee_detections = get_sahi_ref_detections(referee_detector, frame)
     detections = player_detections + ball_detections
 
     # Update trackers
@@ -133,8 +137,13 @@ for i, frame in enumerate(video):
         detections=ball_detections, coord_transformations=coord_transformations
     )
 
+    ref_track_objects = referee_tracker.update(
+        detections=referee_detections, coord_transformations=coord_transformations
+    )
+
     player_detections = Converter.TrackedObjects_to_Detections(player_track_objects)
     ball_detections = Converter.TrackedObjects_to_Detections(ball_track_objects)
+    referee_detections = Converter.TrackedObjects_to_Detections(ref_track_objects)
 
     player_detections = classifier.predict_from_detections(
         detections=player_detections,
@@ -143,6 +152,7 @@ for i, frame in enumerate(video):
 
     # Match update
     ball = get_main_ball(ball_detections)
+    referee = get_main_ref(referee_detections)
     players = Player.from_detections(detections=player_detections, teams=teams)
     match.update(players, ball)
     frame = PIL.Image.fromarray(frame)

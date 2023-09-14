@@ -8,7 +8,7 @@ from norfair.camera_motion import MotionEstimator
 
 from inference import Converter
 from inference.object_detector import ObjectDetection
-from game import Ball, Match
+from game import Ball, Match, Referee
 
 def get_sahi_ball_detections(
     ball_detector, frame: np.ndarray
@@ -40,6 +40,37 @@ def get_sahi_ball_detections(
     ]
 
     return Converter.sahi_DataFrame_to_Detections(ball_detections)
+
+def get_sahi_ref_detections(
+    ball_detector, frame: np.ndarray
+) -> List[norfair.Detection]:
+    """
+    Uses custom Yolov5 detector in order
+    to get the predictions of the ball and converts it to
+    Norfair.Detection list.
+
+    Parameters
+    ----------
+    ball_detector : YoloV5
+        YoloV5 detector for balls
+    frame : np.ndarray
+        Frame to get the ball detections from
+
+    Returns
+    -------
+    List[norfair.Detection]
+        List of ball detections
+    """
+    referee = ball_detector.predict(frame)
+    detections = ball_detector.return_Detections(referee)
+
+    # Iterate through detections and find the best one over the threshold
+    ref_detections = [
+        detection for detection in detections
+        if detection[2] == 4 and detection[1] > 0.5
+    ]
+
+    return Converter.sahi_DataFrame_to_Detections(ref_detections)
 
 def get_ball_detections(
     ball_detector, frame: np.ndarray
@@ -238,3 +269,29 @@ def get_main_ball(detections: List[Detection], match: Match = None) -> Ball:
 
     return ball
 
+def get_main_ref(detections: List[Detection], match: Match = None) -> Ball:
+    """
+    Gets the main ball from a list of balls detection
+
+    The match is used in order to set the color of the ball to
+    the color of the team in possession of the ball.
+
+    Parameters
+    ----------
+    detections : List[Detection]
+        List of detections
+    match : Match, optional
+        Match object, by default None
+
+    Returns
+    -------
+    Ball
+        Main ball
+    """
+    referee = Referee(detection=None)
+
+
+    if detections:
+        referee.detection = detections[0]
+
+    return referee

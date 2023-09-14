@@ -51,15 +51,12 @@ class SahiBallDetection:
 
     def return_Detections(self, results):
         detection_list = []
-        print(results.object_prediction_list)
-        print(dir(results.object_prediction_list))
         for pred in results.object_prediction_list:
             xyxy = (pred.bbox.minx, pred.bbox.miny, pred.bbox.maxx, pred.bbox.maxy)
             confidence = pred.score.value
             class_id = pred.category.id
             mask = pred.mask
             detection_list.append((xyxy, confidence, class_id, mask))
-            print('ball mask:', mask)
 
             # Create an instance of the DetectionInfo class with the collected variables
             # detection_info = DetectionInfo(xyxy=xyxy, confidence=confidence, class_id=class_id)

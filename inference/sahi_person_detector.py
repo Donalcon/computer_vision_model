@@ -60,7 +60,6 @@ class SahiPersonDetection:
             mask = pred.mask
 
             detection_list.append((xyxy, confidence, class_id, mask))
-            print('person mask:', mask)
             # Create an instance of the DetectionInfo class with the collected variables
             # detection_info = DetectionInfo(xyxy=xyxy, confidence=confidence, class_id=class_id)
             # detection_list.append(detection_info)

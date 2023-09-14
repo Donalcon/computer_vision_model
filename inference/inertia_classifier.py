@@ -14,7 +14,7 @@ class InertiaClassifier:
     def __init__(
         self,
         classifier: BaseClassifier,
-        inertia: int = 10,
+        inertia: int = 30,
         mode: int = WINDOW,
     ):
         """
