@@ -128,8 +128,3 @@ class SahiPersonDetection:
 
         return mask
 
-
-    def __call__(self, frame):
-        results = self.predict(frame)
-        detections = self.plot_bboxes(results, frame)
-        return detections

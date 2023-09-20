@@ -10,7 +10,7 @@ from inference.colors import all
 
 
 class HSVClassifier(BaseClassifier):
-    def __init__(self, filters: List[dict]):
+    def __init__(self, filters: List[dict] or dict):
         """
         Initialize HSV Classifier
 
@@ -50,6 +50,8 @@ class HSVClassifier(BaseClassifier):
             You can find your custom hsv range with an online tool like https://github.com/hariangr/HsvRangeTool
         """
         super().__init__()
+        if isinstance(filters, dict):
+            filters = [filters]
 
         self.filters = [self.check_filter_format(filter) for filter in filters]
 

@@ -130,6 +130,7 @@ class Converter:
         """
 
         df = pd.DataFrame()
+
         for detection in detections:
 
             xmin = detection.points[0][0]
@@ -148,7 +149,6 @@ class Converter:
                 "name": [name],
                 "confidence": [confidence],
             }
-
             # get color if its in data
             if "color" in detection.data:
                 data["color"] = [detection.data["color"]]
@@ -159,10 +159,12 @@ class Converter:
             if "classification" in detection.data:
                 data["classification"] = [detection.data["classification"]]
 
+            if "mask" in detection.data:
+                data["mask"] = [detection.data["mask"]]
+
             df_new_row = pd.DataFrame.from_records(data)
 
             df = pd.concat([df, df_new_row])
-
         return df
 
     @staticmethod

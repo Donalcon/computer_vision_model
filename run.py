@@ -1,5 +1,4 @@
 import argparse
-import supervision as sv
 import cv2
 import numpy as np
 import PIL
@@ -8,21 +7,17 @@ from norfair import Tracker, Video
 from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
 from inference.nn_classifier import NNClassifier
-from inference.ball_detector import BallDetection
 from inference.sahi_ball_detector import SahiBallDetection
 from inference.sahi_person_detector import SahiPersonDetection
-from inference.sahi import SahiDetector
 from inference import Converter, HSVClassifier, InertiaClassifier
 from inference.filters import filters
+from inference.SahiDetector import SahiDetection
 from run_utils import (
-    get_ball_detections,
     get_main_ball,
     get_main_ref,
-    get_person_detections,
     update_motion_estimator,
     get_sahi_ball_detections,
     get_sahi_person_detections,
-    get_sahi_ref_detections,
 )
 from game import Match, Player, Team
 from game.draw import AbsolutePath
@@ -54,9 +49,7 @@ video = Video(input_path=args.video)
 fps = video.video_capture.get(cv2.CAP_PROP_FPS)
 print('fps:', fps)
 # Object Detectors
-person_detector = SahiPersonDetection()
-ball_detector = SahiBallDetection()
-referee_detector = SahiPersonDetection()
+detector = SahiDetection()
 
 # NN Classifier
 nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry', 'referee'])
@@ -117,11 +110,9 @@ passes_background = match.get_passes_background()
 for i, frame in enumerate(video):
 
     # Get Detections
-    player_detections = get_sahi_person_detections(person_detector, frame)
-    ball_detections = get_sahi_ball_detections(ball_detector, frame)
-    referee_detections = get_sahi_ref_detections(referee_detector, frame)
-    detections = player_detections + ball_detections
-
+    results = detector.predict(frame)
+    detections = detector.return_detections(results)
+    ball_detections, player_detections, ref_detections = detector.get_detections(detections)
     # Update trackers
     coord_transformations = update_motion_estimator(
         motion_estimator=motion_estimator,
@@ -138,12 +129,12 @@ for i, frame in enumerate(video):
     )
 
     ref_track_objects = referee_tracker.update(
-        detections=referee_detections, coord_transformations=coord_transformations
+        detections=ref_detections, coord_transformations=coord_transformations
     )
 
     player_detections = Converter.TrackedObjects_to_Detections(player_track_objects)
     ball_detections = Converter.TrackedObjects_to_Detections(ball_track_objects)
-    referee_detections = Converter.TrackedObjects_to_Detections(ref_track_objects)
+    ref_detections = Converter.TrackedObjects_to_Detections(ref_track_objects)
 
     player_detections = classifier.predict_from_detections(
         detections=player_detections,
@@ -152,7 +143,7 @@ for i, frame in enumerate(video):
 
     # Match update
     ball = get_main_ball(ball_detections)
-    referee = get_main_ref(referee_detections)
+    referee = get_main_ref(ref_detections)
     players = Player.from_detections(detections=player_detections, teams=teams)
     match.update(players, ball)
     frame = PIL.Image.fromarray(frame)
@@ -175,6 +166,8 @@ for i, frame in enumerate(video):
 
         if ball:
             frame = ball.draw(frame)
+        if referee:
+            frame = referee.draw(frame)
 
     if args.passes:
         pass_list = match.passes
@@ -204,4 +197,3 @@ print(f"{match.home.name} turnovers:", home_turnovers)
 print(f"{match.away.name} turnovers:", away_turnovers)
 print(f"{match.home.name} time in possession: {home_time_in_possession}")
 print(f"{match.away.name} time in possession: {away_time_in_possession}")
-

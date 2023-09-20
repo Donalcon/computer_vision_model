@@ -58,30 +58,7 @@ class SahiBallDetection:
             mask = pred.mask
             detection_list.append((xyxy, confidence, class_id, mask))
 
-            # Create an instance of the DetectionInfo class with the collected variables
-            # detection_info = DetectionInfo(xyxy=xyxy, confidence=confidence, class_id=class_id)
-            # detection_list.append(detection_info)
-
         return detection_list
-
-        # Setup detections for visualization
-        #detections = sv.Detections(
-        #            xyxy=pred_list[0].bbox,
-        #            confidence=pred_list[0].score,
-        #            class_id=pred_list[0].category,
-        #            )
-
-        # Format custom labels
-        # self.labels = [f"{self.CLASS_NAMES_DICT[class_id]} {confidence:0.2f}"
-        #                for class_id, confidence in zip(detections.class_id, detections.confidence)]
-        #return detections
-
-    #def annotate(self):
-
-        # Annotate and display frame
-        # frame = self.box_annotator.annotate(scene=frame, detections=detections, labels=self.labels)
-
-        #return frame
 
     @staticmethod
     def generate_predictions_mask(
@@ -125,9 +102,3 @@ class SahiBallDetection:
             mask[ymin - margin : ymax + margin, xmin - margin : xmax + margin] = 0
 
         return mask
-
-
-    def __call__(self, frame):
-        results = self.predict(frame)
-        return results
-        

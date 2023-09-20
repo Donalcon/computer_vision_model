@@ -1,4 +1,3 @@
-import cv2
 import norfair
 import numpy as np
 
@@ -136,3 +135,23 @@ class Ball:
 
     def __str__(self):
         return f"Ball: {self.center}"
+
+    def from_xyxy(cls, xyxy_points):
+        """
+        Create a Ball instance from xyxy points.
+
+        Parameters
+        ----------
+        xyxy_points : list or tuple
+            List or tuple containing four xyxy coordinates.
+
+        Returns
+        -------
+        Ball
+            Ball instance created from the provided xyxy points.
+        """
+        detection = norfair.Detection(
+            points=np.array([xyxy_points]),
+            absolute_points=np.array([xyxy_points]),
+        )
+        return cls(detection)

@@ -6,6 +6,7 @@ from game.draw import Draw
 from game.pass_event import Pass, PassEvent
 from game.player import Player
 from game.team import Team
+from game.referee import Referee
 
 
 class Match:
@@ -34,7 +35,7 @@ class Match:
         self.closest_player = None
         self.ball = None
         # Amount of consecutive frames new team has to have the ball in order to change possession
-        self.possession_counter_threshold = 10
+        self.possession_counter_threshold = 15
         # Distance in pixels from player to ball in order to consider a player has the ball
         self.ball_distance_threshold = 25
         self.fps = fps
