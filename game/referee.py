@@ -1,8 +1,6 @@
-import cv2
 import norfair
 import numpy as np
-
-from game.draw import Draw
+from annotations.draw import draw_detection
 
 
 class Referee:
@@ -34,4 +32,4 @@ class Referee:
         if self.detection is None:
             return frame
 
-        return Draw.draw_detection(self.detection, frame, confidence=True)
+        return draw_detection(self.detection, frame, confidence=True)

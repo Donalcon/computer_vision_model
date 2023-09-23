@@ -1,6 +1,5 @@
 from .ball import Ball
-from .draw import Draw
-from .match import Match
+from .match import Match, MatchStats
 from .player import Player
 from .team import Team
 from .referee import Referee

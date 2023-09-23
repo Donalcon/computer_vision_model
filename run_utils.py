@@ -1,78 +1,11 @@
 from typing import List, Tuple
-from scipy.interpolate import CubicSpline
 import norfair
 import numpy as np
-import pandas as pd
 from norfair import Detection
 from norfair.camera_motion import MotionEstimator
-
 from inference import Converter
 from inference.SahiDetector import SahiDetection
-from game import Ball, Match, Referee
-
-def get_sahi_ball_detections(
-    ball_detector, frame: np.ndarray
-) -> List[norfair.Detection]:
-    """
-    Uses custom Yolov8 tiled detector in order to get the predictions of the ball and converts it to Norfair.Detection
-    list.
-
-    Parameters
-    ----------
-    ball_detector : YoloV8
-        YoloV5 detector for balls
-    frame : np.ndarray
-        Frame to get the ball detections from
-
-    Returns
-    -------
-    List[norfair.Detection]
-        List of ball detections
-    """
-    ball = ball_detector.predict(frame)
-    detections = ball_detector.return_Detections(ball)
-    # Filter out the detections based on class_id and confidence
-    ball_detections = [
-      detection for detection in detections
-      if detection[2] == 0 and detection[1] > 0.1
-    ]
-    return Converter.sahi_DataFrame_to_Detections(ball_detections)
-
-
-def get_sahi_person_detections(
-    person_detector, frame: np.ndarray
-) -> Tuple[List[norfair.Detection], List[norfair.Detection]]:
-    """
-    Uses custom YoloV8 non-tiled Detector in order to detect the players and referee in a match and filter out the
-    detections that have confidence lower than 0.35.
-
-    Parameters
-    ----------
-    person_detector : YoloV8
-        YoloV8 detector
-    frame : np.ndarray
-        _description_
-
-    Returns
-    -------
-    List[norfair.Detection]
-        List of player and referee detections
-    """
-
-    detections = person_detector.predict(frame)
-    detections = person_detector.return_Detections(detections)
-    # Filter out the detections based on class_id and confidence
-    player_detections = [
-      detection for detection in detections
-      if detection[2] == 3 and detection[1] > 0.5
-    ]
-    ref_detections = [
-        detection for detection in detections
-        if detection[2] == 4 and detection[1] > 0.5
-    ]
-
-    return (Converter.sahi_DataFrame_to_Detections(player_detections),
-            Converter.sahi_DataFrame_to_Detections(ref_detections))
+from game import Referee, Ball, Match
 
 def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.ndarray:
     """
@@ -154,6 +87,27 @@ def update_motion_estimator(
     return coord_transformations
 
 
+
+def get_main_ref(detections: List[Detection]) -> Referee:
+    """
+    Gets the main referee from a list of referee detection
+
+    Parameters
+    ----------
+    detections : List[Detection]
+        List of detections
+    Returns
+    -------
+    Referee
+        Main referee
+    """
+    referee = Referee(detection=None)
+
+    if detections:
+        referee.detection = detections[0]
+
+    return referee
+
 def get_main_ball(detections: List[Detection], match: Match = None) -> Ball:
     """
     Gets the main ball from a list of balls detection
@@ -182,23 +136,3 @@ def get_main_ball(detections: List[Detection], match: Match = None) -> Ball:
         ball.detection = detections[0]
 
     return ball
-
-def get_main_ref(detections: List[Detection]) -> Referee:
-    """
-    Gets the main referee from a list of referee detection
-
-    Parameters
-    ----------
-    detections : List[Detection]
-        List of detections
-    Returns
-    -------
-    Referee
-        Main referee
-    """
-    referee = Referee(detection=None)
-
-    if detections:
-        referee.detection = detections[0]
-
-    return referee

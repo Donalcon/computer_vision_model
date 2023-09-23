@@ -1,13 +1,10 @@
-from array import array
 from typing import List
-
 import numpy as np
 import PIL
 from norfair import Detection
-
 from game.ball import Ball
-from game.draw import Draw
 from game.team import Team
+from annotations.draw import draw_detection, draw_pointer
 
 
 class Player:
@@ -246,7 +243,7 @@ class Player:
             # print('i')
             # print(self.detection.data)
 
-        return Draw.draw_detection(self.detection, frame, confidence=True)
+        return draw_detection(self.detection, frame, confidence=True)
 
     def draw_pointer(self, frame: np.ndarray) -> np.ndarray:
         """
@@ -270,7 +267,7 @@ class Player:
         if self.team:
             color = self.team.color
 
-        return Draw.draw_pointer(detection=self.detection, img=frame, color=color)
+        return draw_pointer(detection=self.detection, img=frame, color=color)
 
     def __str__(self):
         return f"Player: {self.feet}, team: {self.team}"

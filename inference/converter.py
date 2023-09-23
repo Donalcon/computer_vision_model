@@ -68,50 +68,6 @@ class Converter:
 
         return detections
 
-    def sahi_DataFrame_to_Detections(detections_list: List)-> List[norfair.Detection]:
-        """
-        Converts a DataFrame to a list of norfair.Detection
-
-        Parameters
-        ----------
-        df : pd.DataFrame
-            DataFrame containing the bounding boxes
-
-        Returns
-        -------
-        List[norfair.Detection]
-            List of norfair.Detection
-        """
-
-        norfair_detections = []
-
-        for detection_info in detections_list:
-            # get the bounding box coordinates
-            xmin, ymin, xmax, ymax = detection_info[0]
-
-            box = np.array(
-                [
-                    [xmin, ymin],
-                    [xmax, ymax],
-                ]
-            )
-            # get the predicted class and confidence
-            class_id = detection_info[2]
-            confidence = detection_info[1]
-
-            data = {
-                "name": class_id,
-                "p": confidence,
-            }
-
-            norfair_detection = norfair.Detection(
-                points=box,
-                data=data,
-            )
-
-            norfair_detections.append(norfair_detection)
-
-        return norfair_detections
 
     @staticmethod
     def Detections_to_DataFrame(detections: List[norfair.Detection]) -> pd.DataFrame:
@@ -139,7 +95,7 @@ class Converter:
             ymax = detection.points[1][1]
 
             name = detection.data["name"]
-            confidence = detection.data["p"]
+            confidence = detection.data["confidence"]
 
             data = {
                 "xmin": [xmin],

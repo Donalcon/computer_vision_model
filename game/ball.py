@@ -1,7 +1,7 @@
 import norfair
 import numpy as np
+from annotations.draw import draw_detection
 
-from game.draw import Draw
 
 
 class Ball:
@@ -131,7 +131,7 @@ class Ball:
         if self.detection is None:
             return frame
 
-        return Draw.draw_detection(self.detection, frame, confidence=True)
+        return draw_detection(self.detection, frame, confidence=True)
 
     def __str__(self):
         return f"Ball: {self.center}"
