@@ -24,10 +24,9 @@ ball_detector.load_model(model_path='seg-5epoch.pt', config_path='data.yaml')
 person_detector = SahiPersonDetection()
 person_detector.load_model(model_path='seg5ep-no-tile.pt', config_path='data.yaml')
 
-# NN Classifier
+# Color Classifier
 nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry', 'referee'])
 classifier = InertiaClassifier(classifier=nn_classifier, inertia=20)
-
 # Instantiate Match
 home = Team(
     name=config.home['name'],
@@ -62,8 +61,8 @@ referee_tracker = Tracker(
 
 ball_tracker = Tracker(
     distance_function=mean_euclidean,
-    distance_threshold=1000,
-    initialization_delay=2,
+    distance_threshold= 250,
+    initialization_delay=3,
     hit_counter_max=2000,
 )
 motion_estimator = MotionEstimator()

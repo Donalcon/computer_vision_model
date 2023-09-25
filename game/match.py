@@ -28,7 +28,7 @@ class MatchStats:
     def summary(self):
         """Prints out a summary of the match statistics."""
         home_turnovers = self.match.home.get_turnovers()
-        away_turnovers = self.away.get_turnovers()
+        away_turnovers = self.match.away.get_turnovers()
         home_time_in_possession = self.match.home.get_time_in_possession(self.match.home)
         away_time_in_possession = self.match.away.get_time_in_possession(self.match.away)
 

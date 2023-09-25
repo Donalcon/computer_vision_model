@@ -19,7 +19,7 @@ class Player:
             Detection containing the player
         """
         self.detection = detection
-
+        self.in_possession = False
         self.team = None
 
         if detection:

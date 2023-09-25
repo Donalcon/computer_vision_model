@@ -16,43 +16,40 @@ class Possession:
         self.turnover_counter = 0
         self.closest_player = None
         self.ball = None
-        self.possession_counter_threshold = 10
-        self.ball_distance_threshold = 50
+        self.possession_counter_threshold = 20
+        self.ball_distance_threshold = 250
 
     def update(self, players: List[Player], ball: Ball):
-
         self.update_possession()
-
+        # ball
         if ball is None or ball.detection is None:
-            self.closest_player = None
             return
-
         self.ball = ball
 
+        # Closest player and player in possession calculations
         closest_player = min(players, key=lambda player: player.distance_to_ball(ball))
-
-        self.closest_player = closest_player
-
+        # Check if the ball is within a certain distance threshold
         ball_distance = closest_player.distance_to_ball(ball)
+        if ball_distance <= self.ball_distance_threshold:
+                self.closest_player = closest_player
 
-        if ball_distance > self.ball_distance_threshold:
-            self.closest_player = None
-            return
-
+        # Team possession calculation
         # Reset counter if team changed
-        if closest_player.team != self.current_team:
+        if self.closest_player.team != self.current_team:
             self.possession_counter = 0
-            self.current_team = closest_player.team
+            self.current_team = self.closest_player.team
 
         self.possession_counter += 1
-
+        # Lock in team change when we know they've been the closest team to ball for consecutive frames
         if (
             self.possession_counter >= self.possession_counter_threshold
-            and closest_player.team is not None
+            and self.closest_player.team is not None
         ):
-            self.current_team.increment_turnovers()
             self.change_team(self.current_team)
+
     def change_team(self, team: Team):
+        if self.team_possession != team:
+            self.team_possession.increment_turnovers()
         self.team_possession = team
 
     def update_possession(self):

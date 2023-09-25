@@ -117,7 +117,7 @@ class SahiBallDetection(BaseSahiDetection):
         # Filter out the detections based on class_id and confidence
         ball_detections = [
             prediction for prediction in predictions
-            if prediction.label == 0 and prediction.data['confidence'] > 0.1
+            if prediction.label == 0 and prediction.data['confidence'] > 0.3
         ]
         return ball_detections
 
@@ -141,4 +141,5 @@ class SahiPersonDetection(BaseSahiDetection):
             prediction for prediction in predictions
             if prediction.label == 4 and prediction.data['confidence'] > 0.5
         ]
+        # Can we access 2nd highest class prediction? Use to filter all players for low pred ref scores, this should lead to stronger ref class preds
         return player_detections, ref_detections
