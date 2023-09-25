@@ -6,7 +6,7 @@ from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
 from config import Config
 from inference import Converter, InertiaClassifier, NNClassifier
-from inference.split_detector import SahiBallDetection, SahiPersonDetection
+from inference.sahi_detector import SahiBallDetection, SahiPersonDetection
 from run_utils import (
     get_main_ball,
     get_main_ref,

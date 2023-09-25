@@ -55,7 +55,8 @@ class BaseSahiDetection:
 
         return detections
 
-    def generate_predictions_mask(self, predictions: pd.DataFrame, img: np.ndarray, margin: int = 0) -> np.ndarray:
+    @staticmethod
+    def generate_predictions_mask(predictions: pd.DataFrame, img: np.ndarray, margin: int = 0) -> np.ndarray:
         """
         Generates a mask of the predictions bounding boxes
 
@@ -78,7 +79,7 @@ class BaseSahiDetection:
         TypeError
             If predictions type is not pd.DataFrame
         """
-        if type(predictions) != np.array:
+        if type(predictions) != pd.DataFrame:
             raise TypeError("predictions must be a pandas dataframe")
 
         mask = np.ones(img.shape[:2], dtype=img.dtype)
