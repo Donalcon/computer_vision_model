@@ -38,7 +38,7 @@ def get_all_related_packages(target, pip_tree_lines, visited=None):
 
 if __name__ == "__main__":
 
-    target_packages = ["zipp", "importlib-resources", "markdown-it-py"]
+    target_packages = []
 
     target_packages2 = ["sphinxcontrib-applehelp", "sphinxcontrib-devhelp", "sphinxcontrib-htmlhelp","sphinxcontrib-jsmath",
                         "sphinxcontrib-qthelp", "sphinxcontrib-serializinghtml", "setuptools-scm", "py-cpuinfo", "pyasn1",

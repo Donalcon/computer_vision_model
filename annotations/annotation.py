@@ -5,7 +5,7 @@ from .draw import text_in_middle_rectangle, half_rounded_rectangle, add_alpha
 
 
 def draw_counter_background(
-        frame: PIL.Image.Image, origin: tuple, counter_background: PIL.Image.Image
+        frame, origin: tuple, counter_background: PIL.Image.Image
 )-> PIL.Image.Image:
     """
     Draw counter background
@@ -293,7 +293,7 @@ def get_possession_background() -> PIL.Image.Image:
         Counter background
     """
 
-    counter = PIL.Image.open("./images/possession_board2.png").convert("RGBA")
+    counter = PIL.Image.open("./annotations/images/possession_board2.png").convert("RGBA")
     counter = add_alpha(counter, 210)
     counter = np.array(counter)
     red, green, blue, alpha = counter.T
@@ -313,7 +313,7 @@ def get_passes_background() -> PIL.Image.Image:
         Counter background
     """
 
-    counter = PIL.Image.open("./images/passes_board2.png").convert("RGBA")
+    counter = PIL.Image.open("./annotations/images/passes_board2.png").convert("RGBA")
     counter = add_alpha(counter, 210)
     counter = np.array(counter)
     red, green, blue, alpha = counter.T

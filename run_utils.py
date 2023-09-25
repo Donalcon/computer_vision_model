@@ -4,8 +4,9 @@ import numpy as np
 from norfair import Detection
 from norfair.camera_motion import MotionEstimator
 from inference import Converter
-from inference.SahiDetector import SahiDetection
 from game import Referee, Ball, Match
+from inference.sahi_detector import BaseSahiDetection
+
 
 def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.ndarray:
     """
@@ -29,7 +30,7 @@ def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.nd
         mask = np.ones(frame.shape[:2], dtype=frame.dtype)
     else:
         detections_df = Converter.Detections_to_DataFrame(detections)
-        mask = SahiDetection.generate_predictions_mask(detections_df, frame, margin=40)
+        mask = BaseSahiDetection.generate_predictions_mask(predictions=detections_df, img=frame, margin=40)
 
     # remove goal counter
     mask[69:200, 160:510] = 0
