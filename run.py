@@ -1,80 +1,48 @@
-import argparse
-import cv2
+from annotations import annotation
 import numpy as np
 import PIL
-from PIL import Image
 from norfair import Tracker, Video
 from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
-from inference.nn_classifier import NNClassifier
-from inference.sahi_ball_detector import SahiBallDetection
-from inference.sahi_person_detector import SahiPersonDetection
-from inference import Converter, HSVClassifier, InertiaClassifier
-from inference.filters import filters
-from inference.SahiDetector import SahiDetection
+from config import Config
+from inference import Converter, InertiaClassifier, NNClassifier
+from inference.split_detector import SahiBallDetection, SahiPersonDetection
 from run_utils import (
     get_main_ball,
     get_main_ref,
     update_motion_estimator,
-    get_sahi_ball_detections,
-    get_sahi_person_detections,
 )
-from game import Match, Player, Team
-from game.draw import AbsolutePath
-from game.pass_event import Pass
+from game import Match, Player, Team, MatchStats
+from annotations.paths import AbsolutePath
 
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--video",
-    default="videos/soccer_possession.mp4",
-    type=str,
-    help="Path to the input video",
-)
-parser.add_argument(
-    "--model", default="models/ball.pt", type=str, help="Path to the model"
-)
-parser.add_argument(
-    "--passes",
-    action="store_true",
-    help="Enable pass detection",
-)
-parser.add_argument(
-    "--possession",
-    action="store_true",
-    help="Enable possession counter",
-)
-args = parser.parse_args()
+config = Config.from_args()
+video = Video(input_path=config.video_path)
 
-video = Video(input_path=args.video)
-fps = video.video_capture.get(cv2.CAP_PROP_FPS)
-print('fps:', fps)
 # Object Detectors
-detector = SahiDetection()
+ball_detector = SahiBallDetection()
+ball_detector.load_model(model_path='seg-5epoch.pt', config_path='data.yaml')
+person_detector = SahiPersonDetection()
+person_detector.load_model(model_path='seg5ep-no-tile.pt', config_path='data.yaml')
 
-# NN Classifier
+# Color Classifier
 nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry', 'referee'])
-
-# HSV Classifier
-hsv_classifier = HSVClassifier(filters=filters)
-# Add inertia to classifier
 classifier = InertiaClassifier(classifier=nn_classifier, inertia=20)
-
-# Match
-kerry = Team(
-    name="kerry",
-    abbreviation="KER",
-    color=(21, 107, 21),
-    text_color=(109, 230, 240),
+# Instantiate Match
+home = Team(
+    name=config.home['name'],
+    color=config.home['color'],
+    abbreviation=config.home['abbreviation'],
+    text_color=config.home['text_color']
 )
-dublin = Team(
-    name="dublin",
-    abbreviation="DUB",
-    color=(245, 206, 11),
-    text_color=(128, 0, 0)
+away = Team(
+    name=config.away['name'],
+    color=config.away['color'],
+    abbreviation=config.away['abbreviation'],
+    text_color=config.away['text_color']
 )
-teams = [dublin, kerry]
-match = Match(home=dublin, away=kerry, fps=fps)
-match.team_possession = dublin
+teams = [home, away]
+match = Match(home, away, fps=config.fps)
+match.team_possession = home
 
 # Tracking
 player_tracker = Tracker(
@@ -93,49 +61,48 @@ referee_tracker = Tracker(
 
 ball_tracker = Tracker(
     distance_function=mean_euclidean,
-    distance_threshold=150,
+    distance_threshold= 250,
     initialization_delay=3,
     hit_counter_max=2000,
 )
 motion_estimator = MotionEstimator()
 coord_transformations = None
 
-# Paths
+# Instantiate Ball Path
 path = AbsolutePath()
 
-# Get Counter img
-possession_background = match.get_possession_background()
-passes_background = match.get_passes_background()
+possession_background = annotation.get_possession_background()
+passes_background = annotation.get_passes_background()
 
 for i, frame in enumerate(video):
 
     # Get Detections
-    results = detector.predict(frame)
-    detections = detector.return_detections(results)
-    ball_detections, player_detections, ref_detections = detector.get_detections(detections)
+    ball_predictions = ball_detector.predict(frame)
+    person_predictions = person_detector.predict(frame)
+    ball_detections = ball_detector.get_ball_detections(ball_predictions)
+    player_detections, ref_detections = person_detector.get_detections(person_predictions)
+    detections = ball_detections + player_detections + ref_detections
+
     # Update trackers
     coord_transformations = update_motion_estimator(
         motion_estimator=motion_estimator,
         detections=detections,
         frame=frame,
     )
-
     player_track_objects = player_tracker.update(
         detections=player_detections, coord_transformations=coord_transformations
     )
-
     ball_track_objects = ball_tracker.update(
         detections=ball_detections, coord_transformations=coord_transformations
     )
-
     ref_track_objects = referee_tracker.update(
         detections=ref_detections, coord_transformations=coord_transformations
     )
 
+    # Integrate Detections & Tracks
     player_detections = Converter.TrackedObjects_to_Detections(player_track_objects)
     ball_detections = Converter.TrackedObjects_to_Detections(ball_track_objects)
     ref_detections = Converter.TrackedObjects_to_Detections(ref_track_objects)
-
     player_detections = classifier.predict_from_detections(
         detections=player_detections,
         img=frame,
@@ -148,52 +115,31 @@ for i, frame in enumerate(video):
     match.update(players, ball)
     frame = PIL.Image.fromarray(frame)
 
-    if args.possession:
-        frame = Player.draw_players(
-            players=players, frame=frame, confidence=False, id=True
-        )
-
-        frame = path.draw(
-            img=frame,
-            detection=ball.detection,
-            coord_transformations=coord_transformations,
-            color=match.team_possession.color,
-        )
-
-        frame = match.draw_possession_counter(
-            frame, counter_background=possession_background, debug=False
-        )
-
-        if ball:
-            frame = ball.draw(frame)
-        if referee:
-            frame = referee.draw(frame)
-
-    if args.passes:
-        pass_list = match.passes
-
-        frame = Pass.draw_pass_list(
-            img=frame, passes=pass_list, coord_transformations=coord_transformations
-        )
-
-        frame = match.draw_passes_counter(
-            frame, counter_background=passes_background, debug=False
-        )
-
-    frame = np.array(frame)
-    print(frame.shape)
-
+    # Annotations & counters
+    frame = Player.draw_players(
+        players=players, frame=frame, confidence=False, id=True
+    )
+    frame = path.draw(
+        img=frame,
+        detection=ball.detection,
+        coord_transformations=coord_transformations,
+        color=match.team_possession.color,
+    )
+    frame = annotation.draw_possession_counter(
+        config.fps, match, frame, counter_background=possession_background, debug=False
+    )
+    if ball:
+        frame = ball.draw(frame)
+    if referee:
+        frame = referee.draw(frame)
+    frame = annotation.draw_passes_counter(
+        match, frame, counter_background=passes_background, debug=False
+    )
     # Write video
+    frame = np.array(frame)
     video.write(frame)
 
 
 # Generate summary stats
-home_turnovers = match.home.get_turnovers()
-away_turnovers = match.away.get_turnovers()
-home_time_in_possession = match.home.get_time_possession(match.fps)
-away_time_in_possession = match.away.get_time_possession(match.fps)
-
-print(f"{match.home.name} turnovers:", home_turnovers)
-print(f"{match.away.name} turnovers:", away_turnovers)
-print(f"{match.home.name} time in possession: {home_time_in_possession}")
-print(f"{match.away.name} time in possession: {away_time_in_possession}")
+match_stats = MatchStats(match)
+match_stats()

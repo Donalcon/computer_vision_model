@@ -43,6 +43,36 @@ class Team:
         if len(abbreviation) != 3 or not abbreviation.isupper():
             raise ValueError("abbreviation must be length 3 and uppercase")
 
+    def __str__(self):
+        return self.name
+
+    def __eq__(self, other: "Team") -> bool:
+        if isinstance(self, Team) == False or isinstance(other, Team) == False:
+            return False
+
+        return self.name == other.name
+
+    @staticmethod
+    def from_name(teams: List["Team"], name: str) -> "Team":
+        """
+        Return team object from name
+
+        Parameters
+        ----------
+        teams : List[Team]
+            List of Team objects
+        name : str
+            Team name
+
+        Returns
+        -------
+        Team
+            Team object
+        """
+        for team in teams:
+            if team.name == name:
+                return team
+
     def get_percentage_possession(self, duration: int) -> float:
         """
         Return team possession in percentage
@@ -108,34 +138,3 @@ class Team:
             Number of turnovers
         """
         return self.turnovers
-
-    def __str__(self):
-        return self.name
-
-    def __eq__(self, other: "Team") -> bool:
-        if isinstance(self, Team) == False or isinstance(other, Team) == False:
-            return False
-
-        return self.name == other.name
-
-    @staticmethod
-    def from_name(teams: List["Team"], name: str) -> "Team":
-        """
-        Return team object from name
-
-        Parameters
-        ----------
-        teams : List[Team]
-            List of Team objects
-        name : str
-            Team name
-
-        Returns
-        -------
-        Team
-            Team object
-        """
-        for team in teams:
-            if team.name == name:
-                return team
-        return None

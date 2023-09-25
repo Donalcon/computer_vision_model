@@ -1,10 +1,9 @@
 from typing import Iterable, List
-
 import numpy as np
 import PIL
-
 from game.ball import Ball
-from game.draw import AbsolutePath, PathPoint
+from annotations.paths import AbsolutePath
+from annotations.path_points import PathPoint
 from game.player import Player
 from game.team import Team
 
@@ -206,7 +205,7 @@ class Pass:
 
 
 class PassEvent:
-    def __init__(self) -> None:
+    def __init__(self, home: Team, away: Team) -> None:
         self.ball = None
         self.closest_player = None
         self.init_player_with_ball = None
@@ -214,6 +213,8 @@ class PassEvent:
         self.player_with_ball_counter = 0
         self.player_with_ball_threshold = 3
         self.player_with_ball_threshold_dif_team = 4
+        self.home = home
+        self.away = away
 
     def update(self, closest_player: Player, ball: Ball) -> None:
         """
@@ -325,3 +326,10 @@ class PassEvent:
                     return
 
             self.last_player_with_ball = self.closest_player
+
+    @property
+    def passes(self) -> List["Pass"]:
+        home_passes = self.home.passes
+        away_passes = self.away.passes
+
+        return home_passes + away_passes

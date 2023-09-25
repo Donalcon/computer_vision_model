@@ -38,16 +38,17 @@ class SahiDetection:
             )
 
             confidence = detection.score.value
-            class_id = detection.category.id
             name = detection.category.name
-            # mask = detection.mask
+            label = detection.category.id
+            mask = detection.mask
             data = {
                 "name": name,
-                "p": confidence,
+                "confidence": confidence,
+                "mask": mask
             }
             # Optionally add any other data like color, label, etc.
 
-            norfair_detection = Detection(points=box, data=data)
+            norfair_detection = Detection(points=box, data=data, label=label)
 
             detections.append(norfair_detection)
 
@@ -63,17 +64,18 @@ class SahiDetection:
             overlap_height_ratio=0.2,
             overlap_width_ratio=0.2
         )
+        print(results.object_prediction_list)
         return results
 
     def get_detections(self, detections):
         ball_detections = [
-            detection for detection in detections if detection.label == 0 and detection.scores > 0.1
+            detection for detection in detections if detection.label == 0 and detection.data["confidence"] > 0.1
         ]
         player_detections = [
-            detection for detection in detections if detection.label == 3 and detection.scores > 0.5
+            detection for detection in detections if detection.label == 3 and detection.data["confidence"] > 0.5
         ]
         ref_detections = [
-            detection for detection in detections if detection.label == 4 and detection.scores > 0.5
+            detection for detection in detections if detection.label == 4 and detection.data["confidence"] > 0.5
         ]
         return ball_detections, player_detections, ref_detections
 
@@ -102,7 +104,6 @@ class SahiDetection:
         TypeError
             If predictions type is not pd.DataFrame
         """
-        print(type(predictions))
         if type(predictions) != pd.DataFrame:
             raise TypeError("predictions must be a pandas dataframe")
 
