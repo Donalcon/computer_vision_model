@@ -118,7 +118,7 @@ class SahiBallDetection(BaseSahiDetection):
         # Filter out the detections based on class_id and confidence
         ball_detections = [
             prediction for prediction in predictions
-            if prediction.label == 0 and prediction.data['confidence'] > 0.3
+            if prediction.label == 0 and prediction.data['confidence'] > 0.25
         ]
         return ball_detections
 

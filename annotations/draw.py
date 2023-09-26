@@ -111,7 +111,6 @@ def draw_bounding_box(
     """
 
     rectangle = rectangle[0:2]
-
     draw = PIL.ImageDraw.Draw(img)
     rectangle = [tuple(x) for x in rectangle]
     # draw.rectangle(rectangle, outline=color, width=thickness)

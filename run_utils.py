@@ -33,8 +33,9 @@ def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.nd
         mask = BaseSahiDetection.generate_predictions_mask(predictions=detections_df, img=frame, margin=40)
 
     # remove goal counter
-    mask[69:200, 160:510] = 0
-
+    mask[363:118, 856:64] = 0
+    # remove broadcaster logo
+    mask[1589:143, 1805:95] = 0
     return mask
 
 

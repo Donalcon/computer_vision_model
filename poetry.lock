@@ -587,31 +587,6 @@ numpy = [
 ]
 
 [[package]]
-name = "opencv-python-headless"
-version = "4.8.0.76"
-description = "Wrapper package for OpenCV python bindings."
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "opencv-python-headless-4.8.0.76.tar.gz", hash = "sha256:bc15726187dae26d8a08777faf6bc71d38f20c785c102677f58ba0e935003afb"},
-    {file = "opencv_python_headless-4.8.0.76-cp37-abi3-macosx_10_16_x86_64.whl", hash = "sha256:f85d2e3b9d952db35d31f9db8882d073c903921b72b8db1cfed8bbc75e8d3e63"},
-    {file = "opencv_python_headless-4.8.0.76-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:8ee3bf1c9086493c340c6a87899f1c7778d729de92bce8560b8c31ab8a9cdf79"},
-    {file = "opencv_python_headless-4.8.0.76-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c675b8dec6298ba6a1eec2ce24077a393b4236a043f68dfacb06bf594354ce06"},
-    {file = "opencv_python_headless-4.8.0.76-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:220d2e292fa45ef0582aab730460bbc15cfe61f2089208167a372ccf76f01e21"},
-    {file = "opencv_python_headless-4.8.0.76-cp37-abi3-win32.whl", hash = "sha256:df0608de207ae9b094ad9eaf1a475cf6e9a069fb12cd289d4a18cefdab2f8aa8"},
-    {file = "opencv_python_headless-4.8.0.76-cp37-abi3-win_amd64.whl", hash = "sha256:9c094faf6ec7bd360244647b26ebdf8f54edec1d9292cb9179fff9badcca7be8"},
-]
-
-[package.dependencies]
-numpy = [
-    {version = ">=1.21.0", markers = "python_version == \"3.9\" and platform_system == \"Darwin\" and platform_machine == \"arm64\""},
-    {version = ">=1.19.3", markers = "platform_system == \"Linux\" and platform_machine == \"aarch64\" and python_version >= \"3.8\" and python_version < \"3.10\" or python_version > \"3.9\" and python_version < \"3.10\" or python_version >= \"3.9\" and platform_system != \"Darwin\" and python_version < \"3.10\" or python_version >= \"3.9\" and platform_machine != \"arm64\" and python_version < \"3.10\""},
-    {version = ">=1.23.5", markers = "python_version >= \"3.11\""},
-    {version = ">=1.21.4", markers = "python_version >= \"3.10\" and platform_system == \"Darwin\" and python_version < \"3.11\""},
-    {version = ">=1.21.2", markers = "platform_system != \"Darwin\" and python_version >= \"3.10\" and python_version < \"3.11\""},
-]
-
-[[package]]
 name = "packaging"
 version = "21.3"
 description = "Core utilities for Python packages"
@@ -1232,28 +1207,6 @@ pure-eval = "*"
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
-name = "supervision"
-version = "0.14.0"
-description = "A set of easy-to-use utils that will come in handy in any Computer Vision project"
-optional = false
-python-versions = ">=3.8,<3.12.0"
-files = [
-    {file = "supervision-0.14.0-py3-none-any.whl", hash = "sha256:7f03f1ed16ac2ac6e6dd3436cdc54073d32e4185ddc2ea8344b6ae509ea21d67"},
-    {file = "supervision-0.14.0.tar.gz", hash = "sha256:bcce7d8dbd0e64116c5f493535a5eee902bbdf4f3cd16c6b05a3cd640a7fc40e"},
-]
-
-[package.dependencies]
-matplotlib = ">=3.7.1,<4.0.0"
-numpy = ">=1.20.0,<2.0.0"
-opencv-python-headless = ">=4.8.0.74,<5.0.0.0"
-pillow = ">=9.4.0,<10.0.0"
-pyyaml = ">=6.0,<7.0"
-scipy = ">=1.9.0,<2.0.0"
-
-[package.extras]
-desktop = ["opencv-python (>=4.8.0.74,<5.0.0.0)"]
-
-[[package]]
 name = "termcolor"
 version = "2.3.0"
 description = "ANSI color formatting for output in terminal"
@@ -1480,4 +1433,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12.0"
-content-hash = "6a67a1731df5fdcc8c1e5ae9520dc851aab8cbbe2da9dd1e76bd1311fa9c2c87"
+content-hash = "b267bcbe0b849844f642d4882f591618fb53f27db9401c97275a4188790fa786"

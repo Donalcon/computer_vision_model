@@ -130,7 +130,7 @@ class Ball:
         """
         if self.detection is None:
             return frame
-
+        print(f"Drawing rectangle with points: {self.detection.points}")
         return draw_detection(self.detection, frame, confidence=True)
 
     def __str__(self):

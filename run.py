@@ -75,7 +75,6 @@ possession_background = annotation.get_possession_background()
 passes_background = annotation.get_passes_background()
 
 for i, frame in enumerate(video):
-
     # Get Detections
     ball_predictions = ball_detector.predict(frame)
     person_predictions = person_detector.predict(frame)
