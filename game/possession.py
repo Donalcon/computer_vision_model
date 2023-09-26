@@ -30,7 +30,7 @@ class Possession:
         closest_player = min(players, key=lambda player: player.distance_to_ball(ball))
         # Check if the ball is within a certain distance threshold
         ball_distance = closest_player.distance_to_ball(ball)
-        if ball_distance <= self.ball_distance_threshold:
+        if ball_distance >= self.ball_distance_threshold:
                 self.closest_player = closest_player
 
         # Team possession calculation

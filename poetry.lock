@@ -857,6 +857,17 @@ files = [
 tests = ["pytest"]
 
 [[package]]
+name = "py-cpuinfo"
+version = "9.0.0"
+description = "Get CPU info with pure Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "py-cpuinfo-9.0.0.tar.gz", hash = "sha256:3cdbbf3fac90dc6f118bfd64384f309edeadd902d7c8fb17f02ffa1fc3f49690"},
+    {file = "py_cpuinfo-9.0.0-py3-none-any.whl", hash = "sha256:859625bc251f64e21f077d099d4162689c762b5d6a4c3c97553d56241c9674d5"},
+]
+
+[[package]]
 name = "pybboxes"
 version = "0.1.6"
 description = "Light Weight Toolkit for Bounding Boxes"
@@ -1394,6 +1405,37 @@ files = [
 ]
 
 [[package]]
+name = "ultralytics"
+version = "8.0.186"
+description = "Ultralytics YOLOv8 for SOTA object detection, multi-object tracking, instance segmentation, pose estimation and image classification."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "ultralytics-8.0.186-py3-none-any.whl", hash = "sha256:d8e87c11b7aeee3c67830bb6305abfb4efe5e8d252e8e1e8040388cddd9833de"},
+    {file = "ultralytics-8.0.186.tar.gz", hash = "sha256:a1136837a737d04f79af76384ffa1937da41b24848883476d65ea8bf607d2093"},
+]
+
+[package.dependencies]
+matplotlib = ">=3.3.0"
+numpy = ">=1.22.2"
+opencv-python = ">=4.6.0"
+pandas = ">=1.1.4"
+pillow = ">=7.1.2"
+psutil = "*"
+py-cpuinfo = "*"
+pyyaml = ">=5.3.1"
+requests = ">=2.23.0"
+scipy = ">=1.4.1"
+seaborn = ">=0.11.0"
+torch = ">=1.8.0"
+torchvision = ">=0.9.0"
+tqdm = ">=4.64.0"
+
+[package.extras]
+dev = ["check-manifest", "coverage", "ipython", "mkdocs-material", "mkdocs-redirects", "mkdocs-ultralytics-plugin (>=0.0.27)", "mkdocstrings[python]", "pytest", "pytest-cov"]
+export = ["coremltools (>=7.0)", "openvino-dev (>=2023.0)", "tensorflowjs"]
+
+[[package]]
 name = "urllib3"
 version = "1.26.12"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
@@ -1438,4 +1480,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12.0"
-content-hash = "5d8f2b695c0e5ef4d165758e8ae729fd4f4cadaca1d8d95955a9e9d29ba37260"
+content-hash = "6a67a1731df5fdcc8c1e5ae9520dc851aab8cbbe2da9dd1e76bd1311fa9c2c87"
