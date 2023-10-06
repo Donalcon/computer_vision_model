@@ -1,11 +1,11 @@
-from typing import List, Tuple
+from typing import List
 import norfair
 import numpy as np
 from norfair import Detection
 from norfair.camera_motion import MotionEstimator
-from inference import Converter
-from game import Referee, Ball, Match
-from inference.sahi_detector import BaseSahiDetection
+from steps.inference import Converter
+from steps.game import Referee, Ball, Match
+from steps.inference import BaseSahiDetection
 
 
 def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.ndarray:
