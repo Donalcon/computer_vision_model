@@ -1,9 +1,14 @@
 from ultralytics import YOLO
 from roboflow import Roboflow
 from IPython import display
-display.clear_output()
 import time
+import os
 
+# set up environment
+# Use an absolute path here.
+abs_dataset_directory = "/Users/donalconlon/Documents/GitHub/possession_index/datasets"
+
+os.environ["DATASET_DIRECTORY"] = abs_dataset_directory
 
 rf = Roboflow(api_key="hfGn1GDEH5TgyhZuTgiG")
 project = rf.workspace("donals-thesis").project("football-id-2")
@@ -13,5 +18,8 @@ time.sleep(5)
 # Load model
 model = YOLO('yolov8x-seg.pt')
 
+# Use an absolute path for data.yaml
+abs_data_yaml_path = os.path.join(abs_dataset_directory, "football-id-2-6/data.yaml")
+
 # Train model
-model.train(data='football-id-2-6/data.yaml', epochs=50, imgsz=1080)
+model.train(data=abs_data_yaml_path, epochs=50, imgsz=1080)
