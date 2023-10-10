@@ -14,4 +14,4 @@ time.sleep(15)
 model = YOLO('yolov8x-seg.pt')
 
 # Train model
-model.train(data=f'{dataset.location}/data.yaml', epochs=50, imgsz=1080)
+model.train(data='football-id-2-6/data.yaml', epochs=50, imgsz=1080)
