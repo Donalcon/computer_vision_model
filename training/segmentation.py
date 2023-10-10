@@ -16,7 +16,7 @@ dataset = project.version(6).download("yolov8")
 time.sleep(5)
 
 # Load model
-model = YOLO('yolov8x-seg.pt')
+model = YOLO('yolov8l-seg.pt')
 
 # Use an absolute path for data.yaml
 abs_data_yaml_path = os.path.join(abs_dataset_directory, "football-id-2-6/data.yaml")
