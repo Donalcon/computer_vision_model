@@ -11,4 +11,4 @@ dataset = project.version(5).download("yolov8")
 model = YOLO('yolov8x-seg.pt')
 
 # Train model
-model.train(data='data.yaml', epochs=50, imgsz=1080)
+model.train(data=f'{dataset.location}/data.yaml', epochs=50, imgsz=1080)
