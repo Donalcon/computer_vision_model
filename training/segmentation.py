@@ -8,7 +8,7 @@ project = rf.workspace("donals-thesis").project("football-id-2")
 dataset = project.version(5).download("yolov8")
 
 # Load model
-model = YOLO('yoloX-seg.pt')
+model = YOLO('yolov8x-seg.pt')
 
 # Train model
 model.train(data='data.yaml', epochs=50, imgsz=1080)
