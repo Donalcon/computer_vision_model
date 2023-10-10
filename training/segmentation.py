@@ -6,7 +6,7 @@ import os
 
 # set up environment
 # Use an absolute path here.
-abs_dataset_directory = "/Users/donalconlon/Documents/GitHub/possession_index/datasets"
+abs_dataset_directory = "/home/ec2-user/possession_index/datasets"
 
 os.environ["DATASET_DIRECTORY"] = abs_dataset_directory
 
