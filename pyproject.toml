@@ -5,8 +5,8 @@ description = ""
 authors = ["Donal Conlon - Sportedge, donal@sportedge.io"]
 
 [tool.poetry.dependencies]
-python = "3.9.6"
-norfair = {git = "https://github.com/tryolabs/norfair.git", rev = "master"}
+python = "^3.9.6"
+norfair = "^2.2.0"
 torch = "^1.12.1"
 opencv-python = "^4.6.0.66"
 numpy = "^1.23.4"
