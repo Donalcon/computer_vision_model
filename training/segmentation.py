@@ -22,4 +22,4 @@ model = YOLO('yolov8x-seg.pt')
 abs_data_yaml_path = os.path.join(abs_dataset_directory, "football-id-2-6/data.yaml")
 
 # Train model
-model.train(data=abs_data_yaml_path, epochs=50, imgsz=1080)
+model.train(data=abs_data_yaml_path, epochs=50, imgsz=1080, batch_size=4)
