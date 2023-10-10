@@ -4,7 +4,7 @@ import PIL
 from norfair import Detection
 from game.ball import Ball
 from game.team import Team
-from annotations.draw import draw_detection, draw_pointer
+from annotations.draw import draw_detection_mask, draw_pointer
 
 
 class Player:
@@ -243,7 +243,7 @@ class Player:
             # print('i')
             # print(self.detection.data)
 
-        return draw_detection(self.detection, frame, confidence=True)
+        return draw_detection_mask(self.detection, frame, confidence=True)
 
     def draw_pointer(self, frame: np.ndarray) -> np.ndarray:
         """

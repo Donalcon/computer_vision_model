@@ -293,7 +293,7 @@ def get_possession_background() -> PIL.Image.Image:
         Counter background
     """
 
-    counter = PIL.Image.open("./images/possession_board2.png").convert("RGBA")
+    counter = PIL.Image.open("./annotations/images/possession_board2.png").convert("RGBA")
     counter = add_alpha(counter, 210)
     counter = np.array(counter)
     red, green, blue, alpha = counter.T

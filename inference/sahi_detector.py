@@ -6,13 +6,14 @@ import norfair
 from norfair import Detection
 from sahi import AutoDetectionModel
 from sahi.predict import get_prediction, get_sliced_prediction
+from ultralytics import YOLO
 
 # Include sahi & norfair in requirements.txt
 # Should I make load_model & return_Detections classes static?
 
 
 class BaseSahiDetection:
-    def __init__(self, model_path: str = 'seg-5epoch.pt', config_path: str = 'data.yaml'):
+    def __init__(self, model_path: str = 'models/seg-5epoch.pt', config_path: str = 'data.yaml'):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print("Using Device: ", self.device)
         self.model = self.load_model(model_path, config_path)
@@ -99,7 +100,7 @@ class BaseSahiDetection:
 class SahiBallDetection(BaseSahiDetection):
 
     def __init__(self):
-        super().__init__(model_path='seg-5epoch.pt', config_path='data.yaml')
+        super().__init__(model_path='models/seg-5epoch.pt', config_path='data.yaml')
 
     def predict(self, frame: np.ndarray):
         height, width, _ = frame.shape
@@ -125,22 +126,54 @@ class SahiBallDetection(BaseSahiDetection):
 
 class SahiPersonDetection(BaseSahiDetection):
     def __init__(self):
-        super().__init__(model_path='seg5ep-no-tile.pt', config_path='data.yaml')
-
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        print("Using Device: ", self.device)
+        # Load Ultralytics YOLOv5 model
+        self.model = YOLO('models/seg5ep-no-tile.pt', 'segment')
     def predict(self, frame: np.ndarray):
         height, width, _ = frame.shape
-        results = get_prediction(frame, self.model)
+        results = self.model.predict(frame, stream=True)
         predictions = self.return_detections(results)
         return predictions
+
+    def return_detections(self, results):
+        detections = []
+
+        for r in results:
+            xmin = r.boxes.xyxy[0][0].cpu().numpy()
+            ymin = r.boxes.xyxy[0][1].cpu().numpy()
+            xmax = r.boxes.xyxy[0][2].cpu().numpy()
+            ymax = r.boxes.xyxy[0][3].cpu().numpy()
+
+            box = np.array(
+                [
+                    [xmin, ymin],
+                    [xmax, ymax]
+                ]
+            )
+
+            confidence = r[0].boxes.conf
+            label = r[0].boxes.cls
+            mask = r[0].masks
+            data = {
+                "label": label,
+                "confidence": confidence,
+                "mask": mask
+            }
+            norfair_detection = Detection(points=box, label=label, data=data)
+            detections.append(norfair_detection)
+
+        return detections
+
 
     def get_detections(self, predictions: List[Detection]) -> tuple[list[Detection], list[Detection]]:
         player_detections = [
             prediction for prediction in predictions
-            if prediction.label == 3 and prediction.data['confidence'] > 0.5
+            if prediction.label == 'player' and prediction.data['confidence'] > 0.5
         ]
         ref_detections = [
             prediction for prediction in predictions
-            if prediction.label == 4 and prediction.data['confidence'] > 0.5
+            if prediction.label == 'referee' and prediction.data['confidence'] > 0.5
         ]
         # Can we access 2nd highest class prediction? Use to filter all players for low pred ref scores, this should lead to stronger ref class preds
         return player_detections, ref_detections

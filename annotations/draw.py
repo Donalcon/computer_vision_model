@@ -214,7 +214,7 @@ def draw_detection_mask(
     if detection is None:
         return img
 
-    mask = detection.mask
+    mask = detection.data.mask
     if mask is None:
         return img
 

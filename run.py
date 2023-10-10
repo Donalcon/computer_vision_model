@@ -20,12 +20,12 @@ video = Video(input_path=config.video_path)
 
 # Object Detectors
 ball_detector = SahiBallDetection()
-ball_detector.load_model(model_path='seg-5epoch.pt', config_path='data.yaml')
+ball_detector.load_model(model_path='models/seg-5epoch.pt', config_path='data.yaml')
 person_detector = SahiPersonDetection()
-person_detector.load_model(model_path='seg5ep-no-tile.pt', config_path='data.yaml')
+person_detector.load_model(model_path='models/seg5ep-no-tile.pt', config_path='data.yaml')
 
 # Color Classifier
-nn_classifier = NNClassifier('model_path.pt', ['dublin', 'kerry', 'referee'])
+nn_classifier = NNClassifier('models/model_path.pt', ['dublin', 'kerry', 'referee'])
 classifier = InertiaClassifier(classifier=nn_classifier, inertia=20)
 # Instantiate Match
 home = Team(
@@ -72,7 +72,7 @@ coord_transformations = None
 path = AbsolutePath()
 
 possession_background = annotation.get_possession_background()
-passes_background = annotation.get_passes_background()
+#passes_background = annotation.get_passes_background()
 
 for i, frame in enumerate(video):
     # Get Detections
@@ -131,9 +131,9 @@ for i, frame in enumerate(video):
         frame = ball.draw(frame)
     if referee:
         frame = referee.draw(frame)
-    frame = annotation.draw_passes_counter(
-        match, frame, counter_background=passes_background, debug=False
-    )
+    #frame = annotation.draw_passes_counter(
+    #    match, frame, counter_background=passes_background, debug=False
+    #)
     # Write video
     frame = np.array(frame)
     video.write(frame)
