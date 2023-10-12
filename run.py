@@ -5,8 +5,9 @@ from norfair import Tracker, Video
 from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
 from config import Config
+from homography.compute_homography import FieldHomographyEstimator
 from inference import Converter, InertiaClassifier, NNClassifier
-from inference.sahi_detector import SahiBallDetection, SahiPersonDetection
+from inference.sahi_detector import SahiBallDetection, Yolov8Detection
 from run_utils import (
     get_main_ball,
     get_main_ref,
@@ -20,9 +21,7 @@ video = Video(input_path=config.video_path)
 
 # Object Detectors
 ball_detector = SahiBallDetection()
-ball_detector.load_model(model_path='models/seg-5epoch.pt', config_path='data.yaml')
-person_detector = SahiPersonDetection()
-person_detector.load_model(model_path='models/seg5ep-no-tile.pt', config_path='data.yaml')
+std_detector = Yolov8Detection()
 
 # Color Classifier
 nn_classifier = NNClassifier('models/model_path.pt', ['dublin', 'kerry', 'referee'])
@@ -77,9 +76,10 @@ possession_background = annotation.get_possession_background()
 for i, frame in enumerate(video):
     # Get Detections
     ball_predictions = ball_detector.predict(frame)
-    person_predictions = person_detector.predict(frame)
+    person_predictions, keypoint_predictions = std_detector.predict(frame)
     ball_detections = ball_detector.get_ball_detections(ball_predictions)
-    player_detections, ref_detections = person_detector.get_detections(person_predictions)
+    player_detections, ref_detections = std_detector.get_person_detections(person_predictions)
+    keypoint_detections = std_detector.get_keypoint_detections(keypoint_predictions)
     detections = ball_detections + player_detections + ref_detections
 
     # Update trackers
@@ -107,10 +107,16 @@ for i, frame in enumerate(video):
         img=frame,
     )
 
+    # Compute Homography
+    field_homography_estimator = FieldHomographyEstimator()
+    field_homography_estimator.update_with_detections(keypoint_detections)
+
     # Match update
     ball = get_main_ball(ball_detections)
     referee = get_main_ref(ref_detections)
     players = Player.from_detections(detections=player_detections, teams=teams)
+    # Apply Homography to Localize Players
+    transformed_players = field_homography_estimator.apply_to_player(players)
     match.update(players, ball)
     frame = PIL.Image.fromarray(frame)
 

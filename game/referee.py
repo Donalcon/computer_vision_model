@@ -32,4 +32,4 @@ class Referee:
         if self.detection is None:
             return frame
 
-        return draw_detection(self.detection, frame, confidence=True)
+        return draw_detection(self.detection, frame)

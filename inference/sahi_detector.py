@@ -1,32 +1,22 @@
-from typing import List, Tuple
+from typing import List
 import torch
 import pandas as pd
 import numpy as np
 import norfair
 from norfair import Detection
 from sahi import AutoDetectionModel
-from sahi.predict import get_prediction, get_sliced_prediction
+from sahi.predict import get_sliced_prediction
 from ultralytics import YOLO
-
-# Include sahi & norfair in requirements.txt
-# Should I make load_model & return_Detections classes static?
+import pandas
 
 
-class BaseSahiDetection:
-    def __init__(self, model_path: str = 'models/seg-5epoch.pt', config_path: str = 'data.yaml'):
+class BaseDetection:
+    def __init__(self):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print("Using Device: ", self.device)
-        self.model = self.load_model(model_path, config_path)
 
-    def load_model(self, model_path, config_path):
-        model = AutoDetectionModel.from_pretrained(
-            model_type='yolov8',
-            model_path=model_path,
-            config_path=config_path,
-        )
-        return model
-
-    def return_detections(self, results):
+    @staticmethod
+    def return_detections(results):
         detections = []
         for detection in results.object_prediction_list:
             xmin = detection.bbox.minx
@@ -97,10 +87,20 @@ class BaseSahiDetection:
         return mask
 
 
-class SahiBallDetection(BaseSahiDetection):
+class SahiBallDetection(BaseDetection):
+    MODEL_PATH = 'models/seg-5epoch.pt'  # Replace with your actual model path
+    CONFIG_PATH = 'models/data-tile.yaml'
 
     def __init__(self):
-        super().__init__(model_path='models/seg-5epoch.pt', config_path='data.yaml')
+        super().__init__()
+        self.load_model()
+
+    def load_model(self):
+        self.model = AutoDetectionModel.from_pretrained(
+            model_type='yolov8',
+            model_path=self.MODEL_PATH,
+            config_path=self.CONFIG_PATH,
+        )
 
     def predict(self, frame: np.ndarray):
         height, width, _ = frame.shape
@@ -115,7 +115,8 @@ class SahiBallDetection(BaseSahiDetection):
         predictions = self.return_detections(results)
         return predictions
 
-    def get_ball_detections(self, predictions: List[Detection]) -> List[norfair.Detection]:
+    @staticmethod
+    def get_ball_detections(predictions: List[Detection]) -> List[norfair.Detection]:
         # Filter out the detections based on class_id and confidence
         ball_detections = [
             prediction for prediction in predictions
@@ -123,57 +124,133 @@ class SahiBallDetection(BaseSahiDetection):
         ]
         return ball_detections
 
+    def __call__(self):
+        if self.model is None:
+            self.load_model(model_path=self.MODEL_PATH, config_path=self.CONFIG_PATH)
 
-class SahiPersonDetection(BaseSahiDetection):
+
+class Yolov8Detection(BaseDetection):
+    MODEL_PATH = 'models/key-seg.pt'
+
     def __init__(self):
+        super().__init__()
+        self.load_model()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print("Using Device: ", self.device)
-        # Load Ultralytics YOLOv5 model
-        self.model = YOLO('models/seg5ep-no-tile.pt', 'segment')
-    def predict(self, frame: np.ndarray):
-        height, width, _ = frame.shape
-        results = self.model.predict(frame, stream=True)
-        predictions = self.return_detections(results)
-        return predictions
 
-    def return_detections(self, results):
+    def load_model(self):
+        self.model = YOLO(self.MODEL_PATH, 'segment')
+
+    def predict(self, frame: np.ndarray):
+        results = self.model.predict(frame)
+        self.assign_names(results)
+        person_predictions = self.return_person_detections(results, self.model)
+        keypoint_predictions = self.return_keypoint_detections(results, self.model)
+        return person_predictions, keypoint_predictions
+
+    def assign_names(self, results):
+        """Update the class_mappings dictionary."""
+        if not hasattr(self.model, 'class_mappings'):
+            # Assign each class name from the model to its corresponding ID
+            self.model.class_mappings = {name: idx for idx, name in enumerate(self.model.names)}
+
+
+    @staticmethod
+    def return_person_detections(results, model):
         detections = []
 
-        for r in results:
-            xmin = r.boxes.xyxy[0][0].cpu().numpy()
-            ymin = r.boxes.xyxy[0][1].cpu().numpy()
-            xmax = r.boxes.xyxy[0][2].cpu().numpy()
-            ymax = r.boxes.xyxy[0][3].cpu().numpy()
-
-            box = np.array(
-                [
-                    [xmin, ymin],
-                    [xmax, ymax]
-                ]
-            )
-
-            confidence = r[0].boxes.conf
-            label = r[0].boxes.cls
-            mask = r[0].masks
-            data = {
-                "label": label,
-                "confidence": confidence,
-                "mask": mask
-            }
-            norfair_detection = Detection(points=box, label=label, data=data)
-            detections.append(norfair_detection)
+        for idx, r in enumerate(results):
+            masks = r.masks.xy
+            boxes = r.boxes.numpy()
+            for mask, box in zip(masks, boxes):
+                points = box.xyxy
+                xmin, ymin, xmax, ymax = points[0]
+                points = np.array(
+                    [
+                        [xmin, ymin],
+                        [xmax, ymax]
+                    ]
+                )
+                confidence = box.conf
+                label = int(box.cls[0])
+                class_name = model.names[label]
+                mask = mask
+                data = {
+                    "label": label,
+                    "name": class_name,
+                    "confidence": confidence,
+                    "mask": mask,
+                    "txy": [],
+                }
+                norfair_detection = Detection(points=points, label=label, data=data)
+                detections.append(norfair_detection)
 
         return detections
 
+    @staticmethod
+    def return_keypoint_detections(results, model):
+        detections = []
 
-    def get_detections(self, predictions: List[Detection]) -> tuple[list[Detection], list[Detection]]:
-        player_detections = [
-            prediction for prediction in predictions
-            if prediction.label == 'player' and prediction.data['confidence'] > 0.5
-        ]
-        ref_detections = [
-            prediction for prediction in predictions
-            if prediction.label == 'referee' and prediction.data['confidence'] > 0.5
-        ]
-        # Can we access 2nd highest class prediction? Use to filter all players for low pred ref scores, this should lead to stronger ref class preds
+        for r in results:
+            masks = r.masks.xy  # Assuming this is a list
+            boxes = r.boxes.numpy()  # Assuming this is a list
+
+            for mask, box in zip(masks, boxes):
+                points = box.xyxy
+                xmin, ymin, xmax, ymax = points[0]
+                points = np.array(
+                    [
+                        [xmin, ymin],
+                        [xmax, ymax]
+                    ]
+                )
+                confidence = box.conf
+                label = int(box.cls[0])
+                class_name = model.names[label]
+                mask = mask
+                keypoint_x = (xmin + xmax) / 2
+                keypoint_y = (ymin + ymax) / 2
+                xy = np.array([keypoint_x, keypoint_y])
+                data = {
+                    "label": label,
+                    "name": class_name,
+                    "confidence": confidence,
+                    "mask": mask,  # Now each mask corresponds to the right box
+                    "xy": xy,
+                }
+                norfair_detection = Detection(points=points, label=label, data=data)
+                detections.append(norfair_detection)
+
+        return detections
+
+    @staticmethod
+    def get_person_detections(predictions: List[Detection]) -> tuple[list[Detection], list[Detection]]:
+        player_detections = []
+        ref_detections = []
+
+        for prediction in predictions:
+            if prediction.data['confidence'] > 0.5:
+                if prediction.data["name"] == 'player':
+                    player_detections.append(prediction)
+                elif prediction.data["name"] == 'referee':
+                    ref_detections.append(prediction)
+
         return player_detections, ref_detections
+
+    # labels are in class numbers, not class names!!
+    @staticmethod
+    def get_keypoint_detections(predictions: List[Detection]) -> list[Detection]:
+        keypoint_labels = [
+            "0A", "0B", "1E", "1F", "1L", "1N", "1O", "1P", "1R", "1T",
+            "2B", "2C", "2D", "2E", "2F", "2G", "2GPA", "2GPB", "2H", "2J",
+            "2K", "2L", "2N", "2O", "2P", "2Q", "2R", "2T"
+        ]
+        keypoint_detections = [
+            prediction for prediction in predictions
+            if prediction.data["name"] in keypoint_labels and prediction.data['confidence'] > 0.05
+        ]
+        return keypoint_detections
+
+    def __call__(self):
+        if self.model is None:
+            self.load_model(self.MODEL_PATH)

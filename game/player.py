@@ -44,6 +44,19 @@ class Player:
         center = np.array([center_x, center_y])
         return center
 
+    def get_xy(self):
+        points = self.detection.points
+        x1, y1 = points[0]
+        x2, y2 = points[1]
+        x = (x1 + x2) / 2
+        y = min(y1, y2)
+        xy = np.array([x, y])
+        return xy
+
+    @property
+    def xy(self):
+        return self.get_xy()
+
     @property
     def left_foot(self):
         points = self.detection.points
@@ -216,7 +229,7 @@ class Player:
         return self.right_foot_abs
 
     def draw(
-        self, frame: PIL.Image.Image, confidence: bool = False, id: bool = False
+        self, frame: PIL.Image.Image, confidence: bool = False, id: bool = False, txy: bool = False
     ) -> PIL.Image.Image:
         """
         Draw the player on the frame
@@ -243,7 +256,7 @@ class Player:
             # print('i')
             # print(self.detection.data)
 
-        return draw_detection_mask(self.detection, frame, confidence=True)
+        return draw_detection_mask(self.detection, frame, txy=True)
 
     def draw_pointer(self, frame: np.ndarray) -> np.ndarray:
         """
@@ -310,6 +323,7 @@ class Player:
         frame: PIL.Image.Image,
         confidence: bool = False,
         id: bool = False,
+        txy: bool = True,
     ) -> PIL.Image.Image:
         """
         Draw all players on the frame
@@ -331,7 +345,7 @@ class Player:
             Frame with players drawn
         """
         for player in players:
-            frame = player.draw(frame, confidence=confidence, id=id)
+            frame = player.draw(frame, confidence=confidence, id=id, txy=txy)
 
         return frame
 

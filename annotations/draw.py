@@ -78,7 +78,7 @@ def draw_text(
 
     draw.text(
         origin,
-        text,
+        str(text),
         font=font,
         fill=color,
     )
@@ -175,14 +175,6 @@ def draw_detection(
             color=color,
         )
 
-    if confidence:
-        img = draw_text(
-            img=img,
-            origin=(x1, y2),
-            text=str(round(detection.data["confidence"], 2)),
-            color=color,
-        )
-
     return img
 
 def draw_detection_mask(
@@ -190,6 +182,7 @@ def draw_detection_mask(
         img: PIL.Image.Image,
         confidence: bool = False,
         id: bool = False,
+        txy: bool = True,
 ) -> PIL.Image.Image:
     """
     Draw a mask on the image from a norfair.Detection
@@ -211,15 +204,21 @@ def draw_detection_mask(
         Image with the mask drawn
     """
 
-    if detection is None:
+    if detection is None or detection.data["mask"] is None:
         return img
 
-    mask = detection.data.mask
+    mask = detection.data["mask"]
     if mask is None:
         return img
 
+    x1, y1 = detection.points[0]
+    x2, y2 = detection.points[1]
+
+    # Create the mask image
     mask_image = Image.fromarray((mask * 255).astype(np.uint8), mode='L')
     mask_image = mask_image.convert('RGBA')
+    alpha_mask = Image.new("L", mask_image.size, int(0.3 * 255))
+    mask_image.putalpha(alpha_mask)
 
     color = (0, 0, 0)
     if "color" in detection.data:
@@ -227,19 +226,41 @@ def draw_detection_mask(
 
     img.paste(mask_image, (0, 0), mask_image)
 
+    # Handle label
     if "label" in detection.data:
         label = detection.data["label"]
-        draw = ImageDraw.Draw(img)
-        draw.text((0, 0), label, fill=color)
+        img = draw_text(
+            img=img,
+            origin=(x1, y1 - 20),
+            text=label,
+            color=color,
+        )
 
     if "id" in detection.data and id is True:
-        id_value = detection.data["id"]
-        draw = ImageDraw.Draw(img)
-        draw.text((0, 0), f"ID: {id_value}", fill=color)
+        id = detection.data["id"]
+        img = draw_text(
+            img=img,
+            origin=(x1, y1 - 20),
+            text=id,
+            color=color,
+        )
+
+    if "txy" in detection.data and txy is True:
+        txy = detection.data["txy"]
+        img = draw_text(
+            img=img,
+            origin=(x2, y1 - 20),
+            text=txy,
+            color=color,
+        )
 
     if confidence:
-        draw = ImageDraw.Draw(img)
-        draw.text((0, 0), str(round(detection.data["confidence"], 2)), fill=color)
+        img = draw_text(
+            img=img,
+            origin=(x1, y2),
+            text=str(round(detection.data["confidence"], 2)),
+            color=color,
+        )
 
     return img
 

@@ -7,7 +7,7 @@ import pandas as pd
 
 class Converter:
     @staticmethod
-    def DataFrame_to_Detections(arr: np.array) -> List[norfair.Detection]:
+    def DataFrame_to_Detections(df: pd.DataFrame) -> List[norfair.Detection]:
         """
         Converts a DataFrame to a list of norfair.Detection
 
@@ -24,12 +24,12 @@ class Converter:
 
         detections = []
 
-        for row in arr.xyxy:
+        for index, row in df.iterrows():
             # get the bounding box coordinates
-            xmin = row[0]
-            ymin = row[1]
-            xmax = row[2]
-            ymax = row[3]
+            xmin = row["xmin"]
+            ymin = row["ymin"]
+            xmax = row["xmax"]
+            ymax = row["ymax"]
 
             box = np.array(
                 [
@@ -38,26 +38,18 @@ class Converter:
                 ]
             )
 
-            # get the predicted class
-            class_id = arr.class_id
-            confidence = arr.confidence
-            print(box)
-            print(type(box))
-            print(class_id)
-            print(type(class_id))
+            label = row["name"]
+            confidence = row["confidence"]
+            mask = row["mask"]
+            keypoint_x = (xmin + xmax) / 2
+            keypoint_y = (ymin + ymax) / 2
+            xy = np.array([keypoint_x, keypoint_y])
             data = {
-                "name": class_id,
-                "p": confidence,
+                "label": label,
+                "confidence": confidence,
+                "xy": xy,
+                "mask": mask,
             }
-
-            # if "color" in row:
-            #     data["color"] = row["color"]
-            #
-            # if "label" in row:
-            #     data["label"] = row["label"]
-            #
-            # if "classification" in row:
-            #     data["classification"] = row["classification"]
 
             detection = norfair.Detection(
                 points=box,
