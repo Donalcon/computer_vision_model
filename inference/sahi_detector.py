@@ -161,7 +161,7 @@ class Yolov8Detection(BaseDetection):
 
         for idx, r in enumerate(results):
             masks = r.masks.xy
-            boxes = r.boxes.numpy()
+            boxes = r.boxes.cpu().numpy()
             for mask, box in zip(masks, boxes):
                 points = box.xyxy
                 xmin, ymin, xmax, ymax = points[0]
@@ -193,7 +193,7 @@ class Yolov8Detection(BaseDetection):
 
         for r in results:
             masks = r.masks.xy  # Assuming this is a list
-            boxes = r.boxes.numpy()  # Assuming this is a list
+            boxes = r.boxes.cpu().numpy()  # Assuming this is a list
 
             for mask, box in zip(masks, boxes):
                 points = box.xyxy
