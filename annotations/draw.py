@@ -469,7 +469,7 @@ def text_in_middle_rectangle(
     if font is None:
         font = PIL.ImageFont.truetype("annotations/Gidole-Regular.ttf", size=24)
 
-    w, h = draw.(text, font=font)
+    w, h = draw.textsize(text, font=font)
     text_origin = (
         origin[0] + width / 2 - w / 2,
         origin[1] + height / 2 - h / 2,
