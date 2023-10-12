@@ -17,8 +17,8 @@ class Match:
 
     def update(self, players: List[Player], ball: Ball):
         self.possession.update(players, ball)
-        self.pass_event.update(closest_player=self.possession.closest_player, ball=ball)
-        self.pass_event.process_pass()
+        # self.pass_event.update(closest_player=self.possession.closest_player, ball=ball)
+        # self.pass_event.process_pass()
 
 
 class MatchStats:
