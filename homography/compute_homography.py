@@ -44,12 +44,17 @@ class FieldHomographyEstimator:
             print("Great homography: Additional points for robustness")
         # Also add in check here for co-linearity?
         # This will update the current homography transformation
-        update_prvs, homography = self.homography_getter(src_points, dst_points)
+        try:
+            update_prvs, homography = self.homography_getter(src_points, dst_points)
 
-        if update_prvs:
+            if update_prvs:
+                self.current_homography = homography
+
             self.current_homography = homography
-
-        self.current_homography = homography
+        except np.linalg.LinAlgError as e:
+            # Handle the error here
+            print(f"Error encountered: {e}. Skipping this frame's homography update.")
+            pass
 
     def apply_to_player(self, players):
         # Make sure that the current_homography exists
