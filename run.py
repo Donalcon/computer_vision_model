@@ -170,26 +170,27 @@ with mlflow.start_run(experiment_id=EXPERIMENT_ID, run_name=RUN_NAME) as run:
 
             metrics_dict = {}
 
-            for player in players:
-                # Create unique keys for each metric
-                x_key = f"Player_{player.id}_{player.team}_X"
-                y_key = f"Player_{player.id}_{player.team}_Y"
+            if players:
+                for player in players:
+                    # Create unique keys for each metric
+                    x_key = f"Player_{player.id}_{player.team}_X"
+                    y_key = f"Player_{player.id}_{player.team}_Y"
 
-                # Store the metrics in the dictionary
-                metrics_dict[x_key] = player.txy[0]
-                metrics_dict[y_key] = player.txy[1]
-                # Log player ID and team as params
-                param_key = f"Player_{player.id}"
-                mlflow.log_param(f"{param_key}_ID", player.id)
-                mlflow.log_param(f"{param_key}_Team", player.team)
+                    # Store the metrics in the dictionary
+                    metrics_dict[x_key] = player.txy[0]
+                    metrics_dict[y_key] = player.txy[1]
+                    # Log player ID and team as params
+                    param_key = f"Player_{player.id}"
+                    mlflow.log_param(f"{param_key}_ID", player.id)
+                    mlflow.log_param(f"{param_key}_Team", player.team)
 
-            # Add frame index to the metrics dictionary
-            metrics_dict['Frame'] = i
-            frame.save(f'{save_path}frame_{i}.png')
-            # Add time in seconds
-            metrics_dict['Timestamp'] = i / config.fps
-            # Log metrics
-            mlflow.log_metrics(metrics_dict)
+                # Add frame index to the metrics dictionary
+                metrics_dict['Frame'] = i
+                frame.save(f'{save_path}frame_{i}.png')
+                # Add time in seconds
+                metrics_dict['Timestamp'] = i / config.fps
+                # Log metrics
+                mlflow.log_metrics(metrics_dict)
         # Write video
         frame = np.array(frame)
         video.write(frame)
