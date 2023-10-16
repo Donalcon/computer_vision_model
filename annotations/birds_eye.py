@@ -15,11 +15,11 @@ def birds_eye_view(players: List[Player], frame: np.ndarray):
     ratio = int(np.ceil(w /(5 * 145)))
     # Resize
     be_img = cv2.resize(gt_img, (145 * ratio, 88 * ratio))
+    # Convert from BGR to RGB
+    be_img = cv2.cvtColor(be_img, cv2.COLOR_BGR2RGB)
     be_h, be_w, _ = be_img.shape
-    print(be_h, be_w)
     # Place the bird's-eye view image in the bottom right corner of the main frame
     frame[h-be_h:h, w-be_w:w] = be_img
-
 
     # Create birds eye view coordinates
     if players:
@@ -35,8 +35,11 @@ def birds_eye_view(players: List[Player], frame: np.ndarray):
                 # Check if coordinates fall within be_img and draw circle
                 if (w - be_w <= player.be_xy[0] < w) and (h - be_h <= player.be_xy[1] < h):
                     coords = tuple(player.be_xy.astype(int))
-                    color = player.team.color
-                    cv2.circle(frame, coords, 5, color, -1)  # 5 is the fixed radius
+                    # If player.team.color is in RGB, convert to BGR
+                    color_rgb = player.team.color
+                    color_bgr = (color_rgb[2], color_rgb[1], color_rgb[0])
+
+                    cv2.circle(frame, coords, 5, color_bgr, -1)
 
     # import ball object and do the same.
     # if ball.txy is not None:
