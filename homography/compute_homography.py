@@ -2,6 +2,7 @@ import cv2
 from norfair.camera_motion import HomographyTransformationGetter
 from homography.homography_utils import get_dst_points, get_perspective_transform
 import numpy as np
+import matplotlib.pyplot as plt
 
 class FieldHomographyEstimator:
     def __init__(self, method=None, ransac_reproj_threshold=3, max_iters=2000, confidence=0.995):
@@ -64,14 +65,15 @@ class FieldHomographyEstimator:
 
         # Go through each player object and apply homography to its 'ground_center'
         for player in players:
-            # Ensure 'ground_center' exists and is in the expected format (list or numpy array)
             if hasattr(player, 'xy') and (isinstance(player.xy, list) or isinstance(player.xy, np.ndarray)):
                 transformed_xy = self.current_homography.rel_to_abs(np.array([player.xy]))
-                player.txy = transformed_xy.tolist()[0]  # Assuming you want it as a list
-                # Assign the txy to the detection.data dictionary
+                print(transformed_xy)
+                player.txy = transformed_xy.tolist()[0]
+
                 player.detection.data["txy"] = player.txy
             else:
                 print(f"Skipping player {player.id} due to missing or incorrectly formatted 'ground_center'.")
+
         return players
 
     # add in relevant xy properties to player class, abs and relative

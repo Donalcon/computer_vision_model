@@ -224,7 +224,7 @@ def draw_detection_mask(
     if "color" in detection.data:
         color = detection.data["color"] + (255,)
 
-    img.paste(mask_image, (0, 0), mask_image)
+    img.paste(mask_image, (int(x1), int(y1)), mask_image)
 
     # Handle label
     if "label" in detection.data:

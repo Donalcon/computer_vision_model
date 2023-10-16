@@ -62,11 +62,11 @@ class Possession:
 
     @property
     def home_possession_str(self) -> str:
-        return f"{self.home.abbreviation}: {self.home.get_time_possession(self.fps)}"
+        return f"{self.home.abbreviation}: {self.home.get_time_in_possession(self.fps)}"
 
     @property
     def away_possession_str(self) -> str:
-        return f"{self.away.abbreviation}: {self.away.get_time_possession(self.fps)}"
+        return f"{self.away.abbreviation}: {self.away.get_time_in_possession(self.fps)}"
 
     def __str__(self) -> str:
         return f"{self.home_possession_str} | {self.away_possession_str}"
@@ -74,5 +74,5 @@ class Possession:
     @property
     def time_possessions(self) -> str:
         return (
-            f"{self.home.name}: {self.home.get_time_possession(self.fps)} | {self.away.name}: {self.away.get_time_possession(self.fps)}"
+            f"{self.home.name}: {self.home.get_time_in_possession(self.fps)} | {self.away.name}: {self.away.get_time_in_possession(self.fps)}"
         )

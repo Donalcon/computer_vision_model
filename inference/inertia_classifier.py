@@ -191,7 +191,7 @@ class InertiaClassifier:
             Detections with the classification set.
         """
 
-        # Filter detections for classificiations
+        # Filter detections for classifications
         detections_for_classification = [
             detection for detection in detections if self.should_classify(detection)
         ]

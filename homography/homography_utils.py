@@ -1,6 +1,8 @@
 # Croke Park. Stadium should be included in initial config and we can pick custom dst_points as needed.
 import cv2
 import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
 
 
 def get_dst_points():
@@ -53,6 +55,49 @@ def get_dst_points():
         '2GPB': [145, 47.25],
     }
     return dst
+
+dst = get_dst_points()
+df = pd.DataFrame.from_dict(dst, orient='index', columns=['X', 'Y']).reset_index()
+df.columns = ['Key', 'X', 'Y']
+
+data = [
+    [53.175, 66.832],
+    [59.266, 65.076],
+    [55.636, 68.176],
+    [98.25, 47.736],
+    [61.115, 64.914],
+    [54.664, 66.673],
+    [78.774, 56.425],
+    [77.538, 56.888],
+    [57.224, 67.958],
+    [69.738, 82.662],
+    [72.528, 65.298],
+    [57.784, 60.483],
+    [84.81, 90.013],
+    [71.909, 18.696]
+]
+df1 = pd.DataFrame(data, columns=['X', 'Y'])
+
+# Assign row names
+player_names = [f'player{i+1}' for i in range(len(data))]
+df1['Key'] = player_names
+
+# Reorder columns
+df1 = df1[['Key', 'X', 'Y']]
+
+
+# Plotting
+plt.figure(figsize=(8, 6))
+plt.xlim(0, 145)
+plt.ylim(0, 88)
+plt.scatter(df['X'], df['Y'], color='blue', label='keypoints')
+plt.scatter(df1['X'], df1['Y'], color='red', label='players')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.title('Scatter Plot of Player and Key points with Key Annotations')
+plt.legend(loc="upper right")
+plt.grid(True)
+plt.show()
 
 def get_perspective_transform(src, dst):
     """Get the homography matrix between src and dst

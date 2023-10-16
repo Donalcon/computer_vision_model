@@ -91,7 +91,7 @@ class Team:
             return 0
         return round(self.possession / duration, 2)
 
-    def get_time_possession(self, fps: int) -> str:
+    def get_time_in_possession(self, fps: int) -> str:
         """
         Return team possession in time format
 

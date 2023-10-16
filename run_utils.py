@@ -1,6 +1,7 @@
 from typing import List, Tuple
 import norfair
 import numpy as np
+from matplotlib import pyplot as plt
 from norfair import Detection
 from norfair.camera_motion import MotionEstimator
 from inference import Converter
@@ -138,3 +139,31 @@ def get_main_ball(detections: List[Detection], match: Match = None) -> Ball:
         ball.detection = detections[0]
 
     return ball
+
+def plot_points(dst_points, players):
+    """Plot the dst points and players' txy points."""
+
+    # Extract player txy points
+    txy_points = [player.txy for player in players]
+
+    # Unzip the points for plotting
+    if txy_points:
+        dst_x, dst_y = zip(*dst_points)
+        txy_x, txy_y = zip(*txy_points)
+
+        # Plot the points
+        plt.figure(figsize=(15, 9))
+
+        plt.scatter(dst_x, dst_y, color='red', label='Dst Points')
+        plt.scatter(txy_x, txy_y, color='blue', label='Player txy Points')
+
+        plt.xlim(0, 145)  # Setting x-axis limits based on the field dimensions
+        plt.ylim(0, 88)  # Setting y-axis limits based on the field dimensions
+
+        plt.xlabel('X')
+        plt.ylabel('Y')
+        plt.title('Dst Points and Player txy Points')
+        plt.gca().invert_yaxis()  # This makes the plot's orientation similar to a football field's
+        plt.legend()
+        plt.grid(True)
+        plt.show()

@@ -18,6 +18,8 @@ class Player:
         detection : Detection
             Detection containing the player
         """
+        self.txy = None # transformed xy
+        self.be_xy = None # birds eye view xy
         self.detection = detection
         self.in_possession = False
         self.team = None
@@ -344,8 +346,9 @@ class Player:
         PIL.Image.Image
             Frame with players drawn
         """
-        for player in players:
-            frame = player.draw(frame, confidence=confidence, id=id, txy=txy)
+        if players:
+            for player in players:
+                frame = player.draw(frame, confidence=confidence, id=id, txy=txy)
 
         return frame
 
