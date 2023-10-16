@@ -181,7 +181,7 @@ with mlflow.start_run(experiment_id=EXPERIMENT_ID, run_name=RUN_NAME) as run:
                     metrics_dict[y_key] = player.txy[1]
                     # Log player ID and team as params
                     param_key = f"Player_{player.detection.data['id']}"
-                    mlflow.log_param(f"{param_key}_ID", player.id)
+                    mlflow.log_param(f"{param_key}_ID", player.detection.data['id'])
                     mlflow.log_param(f"{param_key}_Team", player.team)
 
                 # Add frame index to the metrics dictionary
