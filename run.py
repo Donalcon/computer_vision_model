@@ -173,14 +173,14 @@ with mlflow.start_run(experiment_id=EXPERIMENT_ID, run_name=RUN_NAME) as run:
             if players:
                 for player in players:
                     # Create unique keys for each metric
-                    x_key = f"Player_{player.id}_{player.team}_X"
-                    y_key = f"Player_{player.id}_{player.team}_Y"
+                    x_key = f"Player_{player.detection.data['id']}_{player.team}_X"
+                    y_key = f"Player_{player.detection.data['id']}_{player.team}_Y"
 
                     # Store the metrics in the dictionary
                     metrics_dict[x_key] = player.txy[0]
                     metrics_dict[y_key] = player.txy[1]
                     # Log player ID and team as params
-                    param_key = f"Player_{player.id}"
+                    param_key = f"Player_{player.detection.data['id']}"
                     mlflow.log_param(f"{param_key}_ID", player.id)
                     mlflow.log_param(f"{param_key}_Team", player.team)
 
