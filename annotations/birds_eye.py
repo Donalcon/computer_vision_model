@@ -22,20 +22,21 @@ def birds_eye_view(players: List[Player], frame: np.ndarray):
 
 
     # Create birds eye view coordinates
-    for player in players:
-        if player.txy is not None:
-            player.be_xy = np.array(player.txy) * ratio
-            player.be_xy = player.be_xy.astype(float)
+    if players:
+        for player in players:
+            if player.txy is not None:
+                player.be_xy = np.array(player.txy) * ratio
+                player.be_xy = player.be_xy.astype(float)
 
-            # Transform coordinates relative to the bottom-left corner of be_img
-            player.be_xy[0] += w - be_w  # x-coordinate
-            player.be_xy[1] = h - player.be_xy[1]  # y-coordinate
+                # Transform coordinates relative to the bottom-left corner of be_img
+                player.be_xy[0] += w - be_w  # x-coordinate
+                player.be_xy[1] = h - player.be_xy[1]  # y-coordinate
 
-            # Check if coordinates fall within be_img and draw circle
-            if (w - be_w <= player.be_xy[0] < w) and (h - be_h <= player.be_xy[1] < h):
-                coords = tuple(player.be_xy.astype(int))
-                color = player.team.color
-                cv2.circle(frame, coords, 5, color, -1)  # 5 is the fixed radius
+                # Check if coordinates fall within be_img and draw circle
+                if (w - be_w <= player.be_xy[0] < w) and (h - be_h <= player.be_xy[1] < h):
+                    coords = tuple(player.be_xy.astype(int))
+                    color = player.team.color
+                    cv2.circle(frame, coords, 5, color, -1)  # 5 is the fixed radius
 
     # import ball object and do the same.
     # if ball.txy is not None:
