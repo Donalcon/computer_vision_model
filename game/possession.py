@@ -21,6 +21,8 @@ class Possession:
 
     def update(self, players: List[Player], ball: Ball):
         self.update_possession()
+        if players is None or len(players) == 0:
+            return
         # ball
         if ball is None or ball.detection is None:
             return

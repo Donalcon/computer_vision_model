@@ -64,7 +64,7 @@ referee_tracker = Tracker(
 
 ball_tracker = Tracker(
     distance_function=mean_euclidean,
-    distance_threshold= 250,
+    distance_threshold=250,
     initialization_delay=3,
     hit_counter_max=2000,
 )
@@ -85,7 +85,7 @@ if experiment_id is None:
     EXPERIMENT_ID = mlflow.create_experiment(EXPERIMENT_NAME)
 else:
     EXPERIMENT_ID = experiment_id.experiment_id
-RUN_NAME = f"run_1"
+RUN_NAME = f"run_2"
 save_path = f'datasets/{RUN_NAME}/'
 os.makedirs(save_path, exist_ok=True)
 total_balls_detected = 0
@@ -137,7 +137,8 @@ with mlflow.start_run(experiment_id=EXPERIMENT_ID, run_name=RUN_NAME) as run:
         # Apply Homography to Localize Players
         players = field_homography_estimator.apply_to_player(players)
         birds_eye_view(players, frame)
-        match.update(players, ball)
+        if players:
+            match.update(players, ball)
 
         frame = PIL.Image.fromarray(frame)
 
