@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 import torch
 import pandas as pd
 import numpy as np
@@ -76,7 +76,6 @@ class BaseDetection:
         mask = np.ones(img.shape[:2], dtype=img.dtype)
 
         for index, row in predictions.iterrows():
-
             xmin = round(row["xmin"])
             ymin = round(row["ymin"])
             xmax = round(row["xmax"])
@@ -144,7 +143,7 @@ class Yolov8Detection(BaseDetection):
     def predict(self, frame: np.ndarray):
         results = self.model.predict(frame)
         self.assign_names(results)
-        person_predictions = self.return_person_detections(results, self.model)
+        person_predictions = return_detections(results, self.model)
         keypoint_predictions = self.return_keypoint_detections(results, self.model)
         return person_predictions, keypoint_predictions
 
@@ -153,46 +152,16 @@ class Yolov8Detection(BaseDetection):
         if not hasattr(self.model, 'class_mappings'):
             # Assign each class name from the model to its corresponding ID
             self.model.class_mappings = {name: idx for idx, name in enumerate(self.model.names)}
-
-
-    @staticmethod
-    def return_person_detections(results, model):
-        detections = []
-
-        for idx, r in enumerate(results):
-            masks = r.masks.xy
-            boxes = r.boxes.cpu().numpy()
-            for mask, box in zip(masks, boxes):
-                points = box.xyxy
-                xmin, ymin, xmax, ymax = points[0]
-                points = np.array(
-                    [
-                        [xmin, ymin],
-                        [xmax, ymax]
-                    ]
-                )
-                confidence = box.conf
-                label = int(box.cls[0])
-                class_name = model.names[label]
-                mask = mask
-                data = {
-                    "label": label,
-                    "name": class_name,
-                    "confidence": confidence,
-                    "mask": mask,
-                    "txy": [],
-                }
-                norfair_detection = Detection(points=points, label=label, data=data)
-                detections.append(norfair_detection)
-
-        return detections
+            print(self.model.class_mappings)
 
     @staticmethod
     def return_keypoint_detections(results, model):
         detections = []
 
         for r in results:
-            masks = r.masks.xy  # Assuming this is a list
+            # xy seems to be the shape of the mask?
+            masks = r.masks.data
+            # Assuming this is a list
             boxes = r.boxes.cpu().numpy()  # Assuming this is a list
 
             for mask, box in zip(masks, boxes):
@@ -224,18 +193,23 @@ class Yolov8Detection(BaseDetection):
         return detections
 
     @staticmethod
-    def get_person_detections(predictions: List[Detection]) -> tuple[list[Detection], list[Detection]]:
+    def get_all_detections(predictions: List[Detection]) -> tuple[list[Detection], list[Detection], list[Detection]]:
         player_detections = []
         ref_detections = []
+        ball_detections = []
 
         for prediction in predictions:
             if prediction.data['confidence'] > 0.5:
-                if prediction.data["name"] == 'player':
+                if prediction.data["name"] == 'players':
                     player_detections.append(prediction)
                 elif prediction.data["name"] == 'referee':
                     ref_detections.append(prediction)
+            else:
+                if prediction.data["confidence"] > 0.3:
+                    if prediction.data["name"] == 'ball':
+                        ball_detections.append(prediction)
 
-        return player_detections, ref_detections
+        return player_detections, ref_detections, ball_detections
 
     # labels are in class numbers, not class names!!
     @staticmethod
@@ -254,3 +228,36 @@ class Yolov8Detection(BaseDetection):
     def __call__(self):
         if self.model is None:
             self.load_model(self.MODEL_PATH)
+
+
+def return_detections(results: Any, model: YOLO) -> List[norfair.Detection]:
+    detections = []
+
+    for idx, r in enumerate(results):
+        masks = r.masks.data
+        boxes = r.boxes.cpu().numpy()
+        for mask, box in zip(masks, boxes):
+            points = box.xyxy
+            xmin, ymin, xmax, ymax = points[0]
+            points = np.array(
+                [
+                    [xmin, ymin],
+                    [xmax, ymax]
+                ]
+            )
+            confidence = box.conf
+            label = int(box.cls[0])
+            class_name = model.names[label]
+            mask = mask
+            data = {
+                "label": label,
+                "name": class_name,
+                "confidence": confidence,
+                "mask": mask,
+                "txy": [],
+            }
+            norfair_detection = Detection(points=points, label=label, data=data)
+            detections.append(norfair_detection)
+            print(norfair_detection.data["mask"][0]) # how can i save this as a variable to view? make sure not all 0s
+
+    return detections

@@ -258,7 +258,7 @@ class Player:
             # print('i')
             # print(self.detection.data)
 
-        return draw_detection_mask(self.detection, frame, txy=True)
+        return draw_detection_mask(self.detection, frame)
 
     def draw_pointer(self, frame: np.ndarray) -> np.ndarray:
         """

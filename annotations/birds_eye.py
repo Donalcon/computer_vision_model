@@ -1,5 +1,5 @@
 from typing import List
-
+from PIL import Image
 import numpy as np
 import cv2
 
@@ -10,14 +10,16 @@ def birds_eye_view(players: List[Player], frame: np.ndarray):
     # set static params
     h, w, _ = frame.shape
     # Load in img
-    gt_img = cv2.imread('./annotations/images/pitch_template.jpeg')
+    gt_img = Image.open('./annotations/images/pitch_template.jpeg')
+    gt_img = gt_img.convert("RGB")
+    # Convert PIL Image to NumPy array
+    gt_img_np = np.array(gt_img)
     # Find ratio
     ratio = int(np.ceil(w /(5 * 145)))
     # Resize
-    be_img = cv2.resize(gt_img, (145 * ratio, 88 * ratio))
-    # Convert from BGR to RGB
-    be_img = cv2.cvtColor(be_img, cv2.COLOR_BGR2RGB)
+    be_img = cv2.resize(gt_img_np, (145 * ratio, 88 * ratio))
     be_h, be_w, _ = be_img.shape
+
     # Place the bird's-eye view image in the bottom right corner of the main frame
     frame[h-be_h:h, w-be_w:w] = be_img
 
@@ -37,9 +39,9 @@ def birds_eye_view(players: List[Player], frame: np.ndarray):
                     coords = tuple(player.be_xy.astype(int))
                     # If player.team.color is in RGB, convert to BGR
                     color_rgb = player.team.color
-                    color_bgr = (color_rgb[2], color_rgb[1], color_rgb[0])
+                    # color_bgr = (color_rgb[2], color_rgb[1], color_rgb[0])
 
-                    cv2.circle(frame, coords, 5, color_bgr, -1)
+                    cv2.circle(frame, coords, 5, color_rgb, -1)
 
     # import ball object and do the same.
     # if ball.txy is not None:

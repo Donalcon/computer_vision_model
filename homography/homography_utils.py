@@ -1,8 +1,6 @@
 # Croke Park. Stadium should be included in initial config and we can pick custom dst_points as needed.
-import cv2
+import mlflow
 import numpy as np
-import pandas as pd
-from matplotlib import pyplot as plt
 
 
 def get_dst_points():
@@ -37,7 +35,7 @@ def get_dst_points():
         '2F': [145, 88],
         '2G': [140.5, 37],
         '2H': [140.5, 51],
-        '2I': [132, 0,],
+        '2I': [132, 0, ],
         '2J': [132, 34.5],
         '2K': [132, 53.5],
         '2L': [132, 88],
@@ -56,66 +54,76 @@ def get_dst_points():
     }
     return dst
 
-dst = get_dst_points()
-df = pd.DataFrame.from_dict(dst, orient='index', columns=['X', 'Y']).reset_index()
-df.columns = ['Key', 'X', 'Y']
 
-data = [
-    [53.175, 66.832],
-    [59.266, 65.076],
-    [55.636, 68.176],
-    [98.25, 47.736],
-    [61.115, 64.914],
-    [54.664, 66.673],
-    [78.774, 56.425],
-    [77.538, 56.888],
-    [57.224, 67.958],
-    [69.738, 82.662],
-    [72.528, 65.298],
-    [57.784, 60.483],
-    [84.81, 90.013],
-    [71.909, 18.696]
-]
-df1 = pd.DataFrame(data, columns=['X', 'Y'])
+# Initialize counters
+insufficient_points_count = 0
+minimum_points_count = 0
+additional_points_count = 0
+collinear_points_count = 0
+pitch_boundary_fail_count = 0
 
-# Assign row names
-player_names = [f'player{i+1}' for i in range(len(data))]
-df1['Key'] = player_names
-
-# Reorder columns
-df1 = df1[['Key', 'X', 'Y']]
+def collinear(p0, p1, p2, epsilon=0.001):
+    x1, y1 = p1[0] - p0[0], p1[1] - p0[1]
+    x2, y2 = p2[0] - p0[0], p2[1] - p0[1]
+    return abs(x1 * y2 - x2 * y1) < epsilon
 
 
-# Plotting
-plt.figure(figsize=(8, 6))
-plt.xlim(0, 145)
-plt.ylim(0, 88)
-plt.scatter(df['X'], df['Y'], color='blue', label='keypoints')
-plt.scatter(df1['X'], df1['Y'], color='red', label='players')
-plt.xlabel('X')
-plt.ylabel('Y')
-plt.title('Scatter Plot of Player and Key points with Key Annotations')
-plt.legend(loc="upper right")
-plt.grid(True)
-plt.show()
+def check_num_points(src_points, dst_points):
+    global insufficient_points_count, minimum_points_count, additional_points_count, collinear_points_count
 
-def get_perspective_transform(src, dst):
-    """Get the homography matrix between src and dst
+    num_points = len(src_points)
+    test_colinear = False
 
-    Arguments:
-        src: np.array of shape (B,X,2) or (X,2), the X>3 original points per image
-        dst: np.array of shape (B,X,2) or (X,2), the X>3 corresponding points per image
-    Returns:
-        M: np.array of shape (B,3,3) or (3,3), each homography per image
-    Raises:
+    if num_points == 4:
+        if (collinear(dst_points[0], dst_points[1], dst_points[2]) or
+                collinear(dst_points[0], dst_points[1], dst_points[3]) or
+                collinear(dst_points[1], dst_points[2], dst_points[3])):
+            test_colinear = True
+            collinear_points_count += 1  # Increment collinearity counter
 
-    """
-    if len(src.shape) == 2:
-        print('first')
-        M, _ = cv2.findHomography(src, dst, method=0,)
-    else:
-        M = []
-        for src_, dst_ in zip(src, dst):
-            M.append(cv2.findHomography(src_, dst_, cv2.RANSAC, 5)[0])
-        M = np.array(M)
-    return M
+    if num_points < 4:
+        print("Bad homography: Insufficient points")
+        insufficient_points_count += 1
+        return "insufficient"
+    elif num_points == 4:
+        print("Good homography: Minimum points")
+        minimum_points_count += 1
+        return "minimum"
+    elif num_points > 4:
+        print("Great homography: Additional points for robustness")
+        additional_points_count += 1
+        return "additional"
+
+    return None
+
+
+def verify_distance_between_players(transformed_coords):
+    global distance_verification_fail_count
+    for i, coord1 in enumerate(transformed_coords):
+        for j, coord2 in enumerate(transformed_coords[i + 1:]):
+            distance = np.linalg.norm(np.array(coord1) - np.array(coord2))
+            if distance > 120:
+                print("Bad homography: Players computed to be more than 120m apart.")
+                distance_verification_fail_count += 1
+                return False
+    return True
+
+
+def verify_players_within_pitch(transformed_coords):
+    global pitch_boundary_fail_count
+    for coord in transformed_coords:
+        x, y = coord
+        if x < 0 or x > 145 or y < 0 or y > 88:
+            print("Bad homography: Player outside pitch parameters.")
+            pitch_boundary_fail_count += 1
+            return False
+    return True
+
+
+def log_fail_counts_to_mlflow():
+    mlflow.log_metric("H - Distance Verification Failed", distance_verification_fail_count)
+    mlflow.log_metric("H - Pitch Boundary Verification Failed", pitch_boundary_fail_count)
+    mlflow.log_metric("H - Insufficient Points", insufficient_points_count)
+    mlflow.log_metric("H - Minimum Points", minimum_points_count)
+    mlflow.log_metric("H - Additional Points", additional_points_count)
+    mlflow.log_metric("H - Collinear Points", collinear_points_count)

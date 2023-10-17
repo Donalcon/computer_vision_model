@@ -1,7 +1,8 @@
+import cv2
 import norfair
 import numpy as np
 import PIL
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 def draw_rectangle(
     img: PIL.Image.Image,
@@ -177,92 +178,35 @@ def draw_detection(
 
     return img
 
+
 def draw_detection_mask(
         detection: norfair.Detection,
         img: PIL.Image.Image,
-        confidence: bool = False,
-        id: bool = False,
-        txy: bool = True,
 ) -> PIL.Image.Image:
     """
     Draw a mask on the image from a norfair.Detection
-
-    Parameters
-    ----------
-    detection : norfair.Detection
-        Detection to draw
-    img : PIL.Image.Image
-        Image
-    confidence : bool, optional
-        Whether to draw confidence, by default False
-    id : bool, optional
-        Whether to draw id, by default False
-
-    Returns
-    -------
-    PIL.Image.Image
-        Image with the mask drawn
+    ...
     """
 
     if detection is None or detection.data["mask"] is None:
         return img
 
     mask = detection.data["mask"]
-    if mask is None:
-        return img
-
-    x1, y1 = detection.points[0]
-    x2, y2 = detection.points[1]
-
-    # Create the mask image
-    mask_image = Image.fromarray((mask * 255).astype(np.uint8), mode='L')
-    mask_image = mask_image.convert('RGBA')
-    alpha_mask = Image.new("L", mask_image.size, int(0.3 * 255))
-    mask_image.putalpha(alpha_mask)
 
     color = (0, 0, 0)
     if "color" in detection.data:
         color = detection.data["color"] + (255,)
 
-    img.paste(mask_image, (int(x1), int(y1)), mask_image)
+    # Create the mask image
+    masked_image = img.copy()
+    masked_image = np.where(mask.astype(int),
+                            np.array(color, dtype='uint8'),
+                            masked_image)
 
-    # Handle label
-    if "label" in detection.data:
-        label = detection.data["label"]
-        img = draw_text(
-            img=img,
-            origin=(x1, y1 - 20),
-            text=label,
-            color=color,
-        )
+    masked_image = masked_image.astype(np.uint8)
 
-    if "id" in detection.data and id is True:
-        id = detection.data["id"]
-        img = draw_text(
-            img=img,
-            origin=(x1, y1 - 20),
-            text=id,
-            color=color,
-        )
+    return cv2.addWeighted(img, 1, masked_image, 0.7, 0)
 
-    if "txy" in detection.data and txy is True:
-        txy = detection.data["txy"]
-        img = draw_text(
-            img=img,
-            origin=(x2, y1 - 20),
-            text=txy,
-            color=color,
-        )
-
-    if confidence:
-        img = draw_text(
-            img=img,
-            origin=(x1, y2),
-            text=str(round(detection.data["confidence"], 2)),
-            color=color,
-        )
-
-    return img
 
 def draw_pointer(
     detection: norfair.Detection, img: PIL.Image.Image, color: tuple = (0, 255, 0)

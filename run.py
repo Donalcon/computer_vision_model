@@ -10,8 +10,9 @@ from norfair.distances import mean_euclidean
 from annotations.birds_eye import birds_eye_view
 from config import Config
 from homography.compute_homography import FieldHomographyEstimator
+from homography.homography_utils import log_fail_counts_to_mlflow
 from inference import Converter, InertiaClassifier, NNClassifier
-from inference.sahi_detector import SahiBallDetection, Yolov8Detection
+from inference.detector import SahiBallDetection, Yolov8Detection
 from run_utils import (
     get_main_ball,
     get_main_ref,
@@ -54,19 +55,23 @@ player_tracker = Tracker(
     initialization_delay=3,
     hit_counter_max=90,
 )
-
 referee_tracker = Tracker(
     distance_function=mean_euclidean,
     distance_threshold=250,
     initialization_delay=3,
     hit_counter_max=90,
 )
-
 ball_tracker = Tracker(
     distance_function=mean_euclidean,
     distance_threshold=250,
     initialization_delay=3,
     hit_counter_max=2000,
+)
+keypoint_tracker = Tracker(
+    distance_function=mean_euclidean,
+    distance_threshold=50,
+    initialization_delay=1,
+    hit_counter_max=1000,
 )
 motion_estimator = MotionEstimator()
 coord_transformations = None
@@ -93,13 +98,13 @@ with mlflow.start_run(experiment_id=EXPERIMENT_ID, run_name=RUN_NAME) as run:
 
     for i, frame in enumerate(video):
         # Get Detections
-        ball_predictions = ball_detector.predict(frame)
         person_predictions, keypoint_predictions = std_detector.predict(frame)
-        ball_detections = ball_detector.get_ball_detections(ball_predictions)
-        player_detections, ref_detections = std_detector.get_person_detections(person_predictions)
+        player_detections, ref_detections, ball_detections = std_detector.get_all_detections(person_predictions)
+        if not ball_detections:
+            ball_predictions = ball_detector.predict(frame)
+            ball_detections = ball_detector.get_ball_detections(ball_predictions)
         keypoint_detections = std_detector.get_keypoint_detections(keypoint_predictions)
         detections = ball_detections + player_detections + ref_detections
-
         # Update trackers
         coord_transformations = update_motion_estimator(
             motion_estimator=motion_estimator,
@@ -115,21 +120,21 @@ with mlflow.start_run(experiment_id=EXPERIMENT_ID, run_name=RUN_NAME) as run:
         ref_track_objects = referee_tracker.update(
             detections=ref_detections, coord_transformations=coord_transformations
         )
-
+        keypoint_track_objects = keypoint_tracker.update(
+            detections=keypoint_detections, coord_transformations=coord_transformations
+        )
         # Integrate Detections & Tracks
         player_detections = Converter.TrackedObjects_to_Detections(player_track_objects)
         ball_detections = Converter.TrackedObjects_to_Detections(ball_track_objects)
         ref_detections = Converter.TrackedObjects_to_Detections(ref_track_objects)
+        keypoint_detections = Converter.TrackedObjects_to_Detections(keypoint_track_objects)
         player_detections = classifier.predict_from_detections(
             detections=player_detections,
             img=frame,
         )
-
         # Compute Homography
         field_homography_estimator = FieldHomographyEstimator()
         field_homography_estimator.update_with_detections(keypoint_detections)
-
-
         # Match update
         ball = get_main_ball(ball_detections)
         referee = get_main_ref(ref_detections)
@@ -200,3 +205,4 @@ with mlflow.start_run(experiment_id=EXPERIMENT_ID, run_name=RUN_NAME) as run:
     match_stats = MatchStats(match)
     match_stats()
     mlflow.log_metric("Total balls detected", total_balls_detected)
+    log_fail_counts_to_mlflow()

@@ -6,7 +6,7 @@ from norfair import Detection
 from norfair.camera_motion import MotionEstimator
 from inference import Converter
 from game import Referee, Ball, Match
-from inference.sahi_detector import BaseDetection
+from inference.detector import BaseDetection
 
 
 def create_mask(frame: np.ndarray, detections: List[norfair.Detection]) -> np.ndarray:
