@@ -73,13 +73,13 @@ def check_num_points(src_points, dst_points):
 
     num_points = len(src_points)
     test_colinear = False
-
     if num_points == 4:
         if (collinear(dst_points[0], dst_points[1], dst_points[2]) or
                 collinear(dst_points[0], dst_points[1], dst_points[3]) or
                 collinear(dst_points[1], dst_points[2], dst_points[3])):
             test_colinear = True
             collinear_points_count += 1  # Increment collinearity counter
+            return "collinear"
 
     if num_points < 4:
         print("Bad homography: Insufficient points")
@@ -102,8 +102,8 @@ def verify_distance_between_players(transformed_coords):
     for i, coord1 in enumerate(transformed_coords):
         for j, coord2 in enumerate(transformed_coords[i + 1:]):
             distance = np.linalg.norm(np.array(coord1) - np.array(coord2))
-            if distance > 120:
-                print("Bad homography: Players computed to be more than 120m apart.")
+            if distance > 150:
+                print("Bad homography: Players computed to be more than 150m apart.")
                 distance_verification_fail_count += 1
                 return False
     return True
@@ -113,7 +113,7 @@ def verify_players_within_pitch(transformed_coords):
     global pitch_boundary_fail_count
     for coord in transformed_coords:
         x, y = coord
-        if x < 0 or x > 145 or y < 0 or y > 88:
+        if x < 0 or x > 155 or y < 0 or y > 98:
             print("Bad homography: Player outside pitch parameters.")
             pitch_boundary_fail_count += 1
             return False

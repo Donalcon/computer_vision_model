@@ -38,7 +38,7 @@ class FieldHomographyEstimator:
 
     def update(self, src_points, dst_points):
         point_type = check_num_points(src_points, dst_points)
-        if point_type == "insufficient":
+        if point_type == "insufficient" or "collinear":
             return
         try:
             update_prvs, homography = self.homography_getter(src_points, dst_points)
