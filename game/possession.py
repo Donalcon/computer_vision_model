@@ -33,14 +33,15 @@ class Possession:
         # Check if the ball is within a certain distance threshold
         ball_distance = closest_player.distance_to_ball(ball)
         if ball_distance >= self.ball_distance_threshold:
-                self.closest_player = closest_player
+                self.closest_player = None
+                return # Maybe remove this heuristic?
 
         # Team possession calculation
         # Reset counter if team changed
-        if self.closest_player:
-            if self.closest_player.team != self.current_team:
-                self.possession_counter = 0
-                self.current_team = self.closest_player.team
+        # if self.closest_player
+        if self.closest_player.team != self.current_team:
+            self.possession_counter = 0
+            self.current_team = self.closest_player.team
 
         self.possession_counter += 1
         # Lock in team change when we know they've been the closest team to ball for consecutive frames

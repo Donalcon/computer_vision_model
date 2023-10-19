@@ -7,7 +7,6 @@ from norfair import Detection
 from sahi import AutoDetectionModel
 from sahi.predict import get_sliced_prediction
 from ultralytics import YOLO
-import pandas
 
 
 class BaseDetection:
@@ -258,6 +257,6 @@ def return_detections(results: Any, model: YOLO) -> List[norfair.Detection]:
             }
             norfair_detection = Detection(points=points, label=label, data=data)
             detections.append(norfair_detection)
-            print(norfair_detection.data["mask"][0]) # how can i save this as a variable to view? make sure not all 0s
+            # print(norfair_detection.data["mask"][0]) # how can i save this as a variable to view? make sure not all 0s
 
     return detections

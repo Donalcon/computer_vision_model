@@ -6,7 +6,6 @@ import PIL
 from norfair import Tracker, Video
 from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
-
 from annotations.birds_eye import birds_eye_view
 from config import Config
 from homography.compute_homography import FieldHomographyEstimator
@@ -31,6 +30,7 @@ std_detector = Yolov8Detection()
 # Color Classifier
 nn_classifier = NNClassifier('models/model_path2.pt', ['dublin', 'kerry', 'referee'])
 classifier = InertiaClassifier(classifier=nn_classifier, inertia=20)
+
 # Instantiate Match
 home = Team(
     name=config.home['name'],
