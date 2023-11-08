@@ -1,0 +1,14 @@
+{
+    "temporal_dim": 1,
+    "batch_dim": 228,
+    "sigma_scale": 1.96,
+    "object3d": "Pitch3D",
+    "dataset": {
+        "image_dir": "football-id-2-7/train/images",
+        "annotation_file": "football-id-2-7/_annotations.coco.json"
+    },
+    "lens_distortion": false,
+    "image_width": 1920,
+    "image_height": 1080,
+    "optim_steps": 1000
+}

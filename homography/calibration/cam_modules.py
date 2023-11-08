@@ -122,7 +122,7 @@ class SNProjectiveCamera:
         around the Z axis to pan the camera. Then the obtained axis system is rotated around its x axis in order to tilt the camera.
         Then the last rotation around the z axis of the new axis system alows to roll the camera. Note that this z axis is the principal axis of the camera.
 
-        As T is not provided for camra location and lens distortion, these parameters are assumed to be fixed accross T.
+        As T is not provided for camera location and lens distortion, these parameters are assumed to be fixed accross T.
         phi_dict is a dict of parameters containing:
         {
             'aov_x, torch.Size([B, T])',

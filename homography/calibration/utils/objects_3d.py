@@ -64,8 +64,13 @@ class pitch3D:
                           self.twoQ, self.twoR, self.twoS, self.twoT,
                           self.oneGPA, self.oneGPB, self.twoGPA, self.twoGPB
         ]
-        self.keypoint_names = [attr[4:] for attr in dir(self) if isinstance(getattr(self, attr), np.ndarray) and attr.startswith("self")]
-        print(f"Key Point Names: {self.keypoint_names}")
+        self.keypoint_names = [
+            "zero0", "zeroB", "zero0", "oneA", "oneB", "oneC", "oneD", "oneE", "oneF", "oneG", "oneH","oneI", "oneJ",
+            "oneK", "oneL", "oneM", "oneN", "oneO", "oneP", "oneQ", "oneR", "oneS", "oneT", "twoA", "twoB", "twoC",
+            "twoD", "twoE", "twoF", "twoG", "twoH", "twoI", "twoJ", "twoK", "twoL", "twoM", "twoN", "twoO", "twoP",
+            "twoQ", "twoR", "twoS", "twoT", "oneGPA", "oneGPB", "twoGPA", "twoGPB"
+        ]
+
 
 class Meshgrid():
     def __init__(self, pitch3D):

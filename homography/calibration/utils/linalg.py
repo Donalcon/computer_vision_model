@@ -76,31 +76,35 @@ def distance_line_pointcloud_3d(
     return d  # (B, A)
 
 
-def distance_point_pointcloud(points: torch.Tensor, pointcloud: torch.Tensor) -> torch.Tensor:
-    """Batched version for point-pointcloud distance calculation
+def distance_point_to_point(points_a: torch.Tensor, points_b: torch.Tensor) -> torch.Tensor:
+    """Calculate the distance between each point in points_a and all points in points_b
     Args:
-        points (torch.Tensor): N points in homogenous coordinates; shape (B, T, 3, S, N)
-        pointcloud (torch.Tensor): N_star points for each pointcloud; shape (B, T, S, N_star, 2)
+        points_a (torch.Tensor): N points in homogenous coordinates; shape (B, T, 3, S, N)
+        points_b (torch.Tensor): M points in homogenous coordinates; shape (B, T, 3, S, M)
 
     Returns:
-        torch.Tensor: Minimum distance for each point N to pointcloud; shape (B, T, 1, S, N)
+        torch.Tensor: Minimum distance for each point in points_a to all points in points_b; shape (B, T, S, N)
     """
 
-    batch_size, T, _, S, N = points.shape
-    batch_size, T, S, N_star, _ = pointcloud.shape
+    # Convert points from homogeneous to Cartesian coordinates
+    points_a = convert_points_from_homogeneous(points_a)
+    points_b = convert_points_from_homogeneous(points_b)
 
-    pointcloud = pointcloud.reshape(batch_size * T * S, N_star, 2)
+    # Reshape tensors for easier computation
+    B, T, _, S, N = points_a.shape
+    B, T, S, M = points_b.shape
 
-    points = convert_points_from_homogeneous(
-        points.permute(0, 1, 3, 4, 2).reshape(batch_size * T * S, N, 3)
-    )
+    points_a = points_a.reshape(B * T * S, N, 2)
+    points_b = points_b.reshape(B * T * S, M)
 
-    # cdist signature: (B, P, M), (B, R, M) -> (B, P, R)
-    distances = torch.cdist(points, pointcloud, p=2)  # (B*T*S, N, N_star)
+    # Compute distances
+    distances = torch.cdist(points_a, points_b, p=2)  # shape: (B * T * S, N, M)
 
-    distances = distances.view(batch_size, T, S, N, N_star)
-    distances = distances.unsqueeze(-4)
+    # Find the minimum distance for each point in points_a to all points in points_b
+    min_distances = distances.min(dim=-1)[0]  # shape: (B * T * S, N)
 
-    # distance to nearest point from point cloud (batch_size, T, 1, S, N, N_star)
-    distances = distances.min(dim=-1)[0]
-    return distances
+    # Reshape to original dimensions
+    min_distances = min_distances.view(B, T, S, N)
+
+    return min_distances
+

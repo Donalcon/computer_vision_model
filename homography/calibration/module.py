@@ -4,8 +4,7 @@ import torch
 from tqdm.auto import tqdm
 from kornia.geometry.conversions import convert_points_to_homogeneous
 from homography.calibration.cam_modules import CameraParameterWLensDistDictZScore, SNProjectiveCamera
-from homography.calibration.utils.helper_functions import calculate_bbox_centre
-from homography.calibration.utils.linalg import distance_point_pointcloud
+from homography.calibration.utils.linalg import distance_point_to_point
 
 
 class TVCalibModule(torch.nn.Module):
@@ -78,15 +77,12 @@ class TVCalibModule(torch.nn.Module):
             nan_check=False,
         )
 
-        # (batch_size, num_views_per_cam, 3, num_segments, num_points)
-        keypoints_px = x["bounding_boxes"].to(self._device)
-        batch_size, T_k, _, S_k, N_k = keypoints_px.shape # may need to change variables this goes into
+        # (batch_size, num_views_per_cam, keypoints, num_points)
+        points_px_true = x["kp__ndc_projected"].to(self._device)
+        batch_size, CV_k, T_k, _, N_k = points_px_true.shape
+        points3d = self.pitch3d.keypoints
+        points3d = torch.Tensor(points3d)
 
-        # Calculate keypoint distances
-        keypoints_px_true = calculate_bbox_centre(keypoints_px)
-
-        points3d = self.pitch3d.keypoints  # (3, S_l, 2) to (S_l * 2, 3)
-        points3d = points3d.reshape(3, S_k * 2).transpose(0, 1)
         points_px = convert_points_to_homogeneous(
             cam.project_point2ndc(points3d, lens_distortion=False)
         )
@@ -94,12 +90,6 @@ class TVCalibModule(torch.nn.Module):
         if batch_size < cam.batch_dim:  # actual batch_size smaller than expected, i.e. last batch
             points_px = points_px[:batch_size]
 
-        points_px = points_px.view(batch_size, T_k, S_k, 2, 3)
-        pc = (
-            keypoints_px_true.view(batch_size, T_k, 3, S_k * N_k)
-            .transpose(2, 3)
-            .view(batch_size, T_k, S_k, N_k, 3)
-        )
         if self.lens_distortion_active:
             # undistort given points
             pc = pc.view(batch_size, T_k, S_k * N_k, 3)
@@ -108,109 +98,84 @@ class TVCalibModule(torch.nn.Module):
                 pc[..., :2], cam.intrinsics_ndc, num_iters=1
             )  # num_iters=1 might be enough for a good approximation
             pc = pc.view(batch_size, T_k, S_k, N_k, 3)
-        distances_px_keypoints_raw = distance_point_pointcloud(
-            keypoints_px_true, points_px
+
+        points_px_true.squeeze(3)
+        distances_px_keypoints_raw = distance_point_to_point(
+            points_px_true, points_px
         )  # (batch_size, T_l, S_l, N_l)
         distances_px_keypoints_raw = distances_px_keypoints_raw.unsqueeze(-3)
 
         distances_dict = {
-            "loss_ndc_lines": distances_px_keypoints_raw,  # (batch_size, T_l, 1, S_l, N_l)
+            "loss_ndc_keypoints": distances_px_keypoints_raw,  # (batch_size, T_l, 1, S_l, N_l)
         }
         return distances_dict, cam
 
     def self_optim_batch(self, x, *args, **kwargs):
-
         scheduler = self.Scheduler(self.optim)  # re-initialize lr scheduler for every batch
-        if self.lens_distortion_active:
-            scheduler_lens_distortion = self.Scheduler_lens_distortion()
-
-        # TODO possibility to init from x; -> modify dataset that yields x
-        self.cam_param_dict.initialize(None)
         self.optim.zero_grad()
-        if self.lens_distortion_active:
-            self.optim_lens_distortion.zero_grad()
 
-        keypoint_masks = {
-            "loss_ndc_keypoints": x["kp__is_keypoint_mask"].to(self._device),
-        }
-        num_actual_points = {
-            "loss_ndc_keypoints": keypoint_masks["loss_ndc_keypoints"].sum(dim=(-1, -2)),
-        }
-        # print({f"{k} {v}" for k, v in num_actual_points.items()})
+        keypoint_mask = x["kp__is_keypoint_mask"].to(self._device)  # Updated mask
+        num_actual_points = keypoint_mask.sum(dim=(-1, -2))  # Updated point calculation
 
         per_sample_loss = {}
-        per_sample_loss["mask_keypoints"] = keypoint_masks["loss_ndc_keypoints"]
+        per_sample_loss["mask_keypoints"] = keypoint_mask  # Updated mask storage
 
         per_step_info = {"loss": [], "lr": []}
-        # with torch.autograd.detect_anomaly():
+
         with tqdm(range(self.optim_steps), **self.tqdm_kwqargs) as pbar:
             for step in pbar:
-
                 self.optim.zero_grad()
-                if self.lens_distortion_active:
-                    self.optim_lens_distortion.zero_grad()
 
                 # forward pass
                 distances_dict, cam = self(x)
 
-                # create mask for batch dimension indicating whether distances and loss are computed
-                # based on per-sample distance
-
                 # distance calculate with masked input and output
                 losses = {}
-                for key_dist, distances in distances_dict.items():
-                    # for padded points set distance to 0.0
-                    # then sum over dimensions (S, N) and divide by number of actual given points
-                    distances[~keypoint_masks[key_dist]] = 0.0
+                distances = distances_dict.get("loss_ndc_keypoints", None)  # Simplified key name
+                if distances is not None:
+                    # Apply mask
+                    distances[keypoint_mask == 0] = 0.0
 
-                    # log per-point distance
-                    per_sample_loss[f"{key_dist}_distances_raw"] = distances
+                    # Log per-point distance
+                    per_sample_loss["keypoint_distances_raw"] = distances
 
-                    # sum px distance over S and number of points, then normalize given the number of annotations
-                    distances_reduced = distances.sum(dim=(-1, -2))  # (B, T, 1, S, M) -> (B, T, 1)
-                    distances_reduced = distances_reduced / num_actual_points[key_dist]
+                    # sum pixel distance and normalize
+                    distances_reduced = distances.sum(dim=(-1, -2))
+                    distances_reduced = distances_reduced / num_actual_points
 
-                    # num_actual_points == 0 -> set loss for this segment to 0.0 to prevent division by zero
-                    distances_reduced[num_actual_points[key_dist] == 0] = 0.0
+                    # Handle num_actual_points == 0
+                    distances_reduced[num_actual_points == 0] = 0.0
 
-                    distances_reduced = distances_reduced.squeeze(-1)  # (B, T, 1) -> (B, T,)
-                    per_sample_loss[key_dist] = distances_reduced
-
-                    loss = distances_reduced.mean(dim=-1)  # mean over T dimension: (B, T, )-> (B,)
-                    # only relevant for autograd:
-                    # sum over batch dimension
-                    # --> different batch sizes do not change the per sample loss and its gradients
+                    loss = distances_reduced.mean(dim=-1)
                     loss = loss.sum()
 
-                    losses[key_dist] = loss
+                    losses["loss_ndc_keypoints"] = loss
 
-                # each segment and annotation contributes equal to the loss -> no need for weighting segment types
-                loss_total_dist = losses["loss_ndc_keypoints"]
-                loss_total = loss_total_dist
+                # Total loss
+                loss_total = losses.get("loss_ndc_keypoints", 0)
 
                 if self.log_per_step:
                     per_step_info["lr"].append(scheduler.get_last_lr())
-                    per_step_info["loss"].append(distances_reduced)  # log per sample loss
+                    per_step_info["loss"].append(distances_reduced)
+
                 if step % 50 == 0:
                     pbar.set_postfix(
-                        loss=f"{loss_total_dist.detach().cpu().tolist():.5f}",
+                        loss=f"{loss_total.detach().cpu().tolist():.5f}",
                     )
 
                 loss_total.backward()
                 self.optim.step()
                 scheduler.step()
-                if self.lens_distortion_active:
-                    self.optim_lens_distortion.step()
-                    scheduler_lens_distortion.step()
 
         per_sample_loss["loss_ndc_total"] = torch.sum(
-            torch.stack([per_sample_loss[key_dist] for key_dist in distances_dict.keys()], dim=0),
+            torch.stack([per_sample_loss["keypoint_distances_raw"]], dim=0),
             dim=0,
         )
 
         if self.log_per_step:
             per_step_info["loss"] = torch.stack(
                 per_step_info["loss"], dim=-1
-            )  # (n_steps, batch_dim, temporal_dim)
+            )
             per_step_info["lr"] = torch.tensor(per_step_info["lr"])
+
         return per_sample_loss, cam, per_step_info

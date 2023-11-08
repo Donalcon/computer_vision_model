@@ -1,0 +1,89 @@
+TVCalibModule:
+  optim: "AdamW (\nParameter Group 0\n    amsgrad: False\n    betas: (0.9, 0.999)\n\
+    \    capturable: False\n    eps: 1e-08\n    foreach: None\n    lr: 0.1\n    maximize:\
+    \ False\n    weight_decay: 0.01\n)"
+  scheduler: functools.partial(<class 'torch.optim.lr_scheduler.OneCycleLR'>, max_lr=0.05,
+    total_steps=1000, pct_start=0.5)
+batch_dim: 228
+dataset:
+  annotation_file: football-id-2-7/_annotations.coco.json
+  image_dir: football-id-2-7/train/images
+distr_cam:
+  aov:
+    dimension: !!python/tuple
+    - 228
+    - 1
+    mean_std: !!python/tuple
+    - 0.8568
+    - 0.8092
+    minmax: !!python/tuple
+    - 0.14279966607226333
+    - 1.5707963267948966
+  c_x:
+    dimension: !!python/tuple
+    - 228
+    - 1
+    mean_std: !!python/tuple
+    - -0.0
+    - 13.5997
+    minmax: !!python/tuple
+    - -12.0
+    - 12.0
+  c_y:
+    dimension: !!python/tuple
+    - 228
+    - 1
+    mean_std: !!python/tuple
+    - 75.0
+    - 39.6657
+    minmax: !!python/tuple
+    - 40.0
+    - 110.0
+  c_z:
+    dimension: !!python/tuple
+    - 228
+    - 1
+    mean_std: !!python/tuple
+    - -22.5
+    - 19.8328
+    minmax: !!python/tuple
+    - -40.0
+    - -5.0
+  pan:
+    dimension: !!python/tuple
+    - 228
+    - 1
+    mean_std: !!python/tuple
+    - 0.0
+    - 1.0173
+    minmax: !!python/tuple
+    - -0.8975979010256552
+    - 0.8975979010256552
+  roll:
+    dimension: !!python/tuple
+    - 228
+    - 1
+    mean_std: !!python/tuple
+    - -0.0
+    - 0.1978
+    minmax: !!python/tuple
+    - -0.17453292519943295
+    - 0.17453292519943295
+  tilt:
+    dimension: !!python/tuple
+    - 228
+    - 1
+    mean_std: !!python/tuple
+    - 1.0996
+    - 0.5341
+    minmax: !!python/tuple
+    - 0.6283185307179586
+    - 1.5707963267948966
+distr_lens_disto: null
+image_height: 1080
+image_width: 1920
+lens_distortion: false
+object3d: Pitch3D
+optim_steps: 1000
+sigma_scale: 1.96
+temporal_dim: 1

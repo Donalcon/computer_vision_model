@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/donalconlon/Documents/GitHub/possession_index/mlruns/191862786896535566/8e160ddf41af407b8c225e4b0f2788a9/artifacts
+end_time: 1697220915293
+entry_point_name: ''
+experiment_id: '191862786896535566'
+lifecycle_stage: active
+run_id: 8e160ddf41af407b8c225e4b0f2788a9
+run_name: run_1
+run_uuid: 8e160ddf41af407b8c225e4b0f2788a9
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1697220446079
+status: 4
+tags: []
+user_id: donalconlon
