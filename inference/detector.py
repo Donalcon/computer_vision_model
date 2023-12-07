@@ -128,7 +128,7 @@ class SahiBallDetection(BaseDetection):
 
 
 class Yolov8Detection(BaseDetection):
-    MODEL_PATH = 'models/key-seg.pt'
+    MODEL_PATH = 'models/best.pt'
 
     def __init__(self):
         super().__init__()
@@ -151,7 +151,6 @@ class Yolov8Detection(BaseDetection):
         if not hasattr(self.model, 'class_mappings'):
             # Assign each class name from the model to its corresponding ID
             self.model.class_mappings = {name: idx for idx, name in enumerate(self.model.names)}
-            print(self.model.class_mappings)
 
     @staticmethod
     def return_keypoint_detections(results, model):

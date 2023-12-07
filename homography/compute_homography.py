@@ -1,9 +1,7 @@
-from norfair.camera_motion import HomographyTransformationGetter
 import numpy as np
 from norfair.camera_motion import HomographyTransformationGetter
 
-from homography.homography_utils import get_dst_points, collinear, verify_distance_between_players, \
-    verify_players_within_pitch, check_num_points
+from homography.homography_utils import get_dst_points, check_num_points
 
 
 class FieldHomographyEstimator:
@@ -73,19 +71,38 @@ class FieldHomographyEstimator:
             else:
                 print(f"Skipping player {player.id} due to missing or incorrectly formatted 'ground_center'.")
 
-            # Verification Clause 1
-            if not verify_distance_between_players(transformed_coords):
-                return None  # Or you could reset the current homography
-            if not verify_players_within_pitch(transformed_coords):
-                return None
-
         for player in players:
             print(player.txy)
 
         return players
 
-    # add in relevant xy properties to player class, abs and relative
+    def compute_homography(self, keypoints, dst_points_mapping):
+        src_points = []
+        dst_points_list = []
 
-    # ensure data type, array, list or dict is correct for both src and dst.
-    # display x,y over players head for video debug.
-    # ensure alpha is present in draw_mask
+        # Map keypoints to the expected src and dst points for homography calculation
+        for keypoint in keypoints:
+            category_id = keypoint['category_id']
+            xy = keypoint['keypoint']
+            if category_id in dst_points_mapping:
+                src_points.append(xy)
+                dst_points_list.append(dst_points_mapping[category_id])
+
+        # Convert the lists to numpy arrays
+        src_points_np = np.array(src_points)
+        dst_points_np = np.array(dst_points_list)
+
+        # Check if there are enough points to compute the homography
+        if len(src_points_np) >= 4:
+            try:
+                # Compute the homography matrix
+                success_flag, homography_matrix = self.homography_getter(src_points_np, dst_points_np)
+                if success_flag:
+                    return homography_matrix
+            except np.linalg.LinAlgError as e:
+                print(f"Error encountered: {e}. Skipping this frame's homography update.")
+        else:
+            homography_matrix = None
+            print("Not enough keypoints to compute homography.")
+        return None
+

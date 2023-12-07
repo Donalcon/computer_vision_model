@@ -5,6 +5,7 @@ from norfair import Detection
 from game.ball import Ball
 from game.team import Team
 from annotations.draw import draw_detection_mask, draw_pointer
+import supervision as sv
 
 
 class Player:
@@ -257,8 +258,16 @@ class Player:
             self.detection.data["color"] = self.team.color
             # print('i')
             # print(self.detection.data)
+        mask_annotator = sv.MaskAnnotator(color=self.detection.data["color"], opacity=0.5)
+        sv_detections=sv.Detections(xyxy=self.detection.points,
+                                    mask=self.detection.data["mask"],
+                                    tracker_id=self.detection.data["txy"],)
+        annotated_frame = mask_annotator.annotate(
+            scene=frame,
+            detections=sv_detections,
+        )
 
-        return draw_detection_mask(self.detection, frame)
+        return annotated_frame
 
     def draw_pointer(self, frame: np.ndarray) -> np.ndarray:
         """

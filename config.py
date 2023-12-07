@@ -23,7 +23,7 @@ class Config:
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "--video",
-            default="videos/soccer_possession.mp4",
+            default="dublin_v_kerry_AdobeExpress2.mp4",
             type=str,
             help="Path to the input video",
         )

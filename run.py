@@ -6,7 +6,6 @@ import PIL
 from norfair import Tracker, Video
 from norfair.camera_motion import MotionEstimator
 from norfair.distances import mean_euclidean
-from annotations.birds_eye import birds_eye_view
 from config import Config
 from homography.compute_homography import FieldHomographyEstimator
 from homography.homography_utils import log_fail_counts_to_mlflow
@@ -98,8 +97,8 @@ with mlflow.start_run(experiment_id=EXPERIMENT_ID, run_name=RUN_NAME) as run:
 
     for i, frame in enumerate(video):
         # Get Detections
-        person_predictions, keypoint_predictions = std_detector.predict(frame)
-        player_detections, ref_detections, ball_detections = std_detector.get_all_detections(person_predictions)
+        predictions, keypoint_predictions = std_detector.predict(frame)
+        player_detections, ref_detections, ball_detections = std_detector.get_all_detections(predictions)
         if not ball_detections:
             ball_predictions = ball_detector.predict(frame)
             ball_detections = ball_detector.get_ball_detections(ball_predictions)
@@ -141,7 +140,6 @@ with mlflow.start_run(experiment_id=EXPERIMENT_ID, run_name=RUN_NAME) as run:
         players = Player.from_detections(detections=player_detections, teams=teams)
         # Apply Homography to Localize Players
         players = field_homography_estimator.apply_to_player(players)
-        birds_eye_view(players, frame)
         if players:
             match.update(players, ball)
 
